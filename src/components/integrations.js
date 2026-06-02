@@ -15,7 +15,7 @@ export const IntegrationsComponent = {
                     
                     <div class="integrations-grid">
                         <!-- SLACK -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'slack',
                             'Slack',
                             'E01E5A',
@@ -24,7 +24,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- FIGMA -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'figma',
                             'Figma',
                             'F24E1E',
@@ -33,7 +33,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- NOTION -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'notion',
                             'Notion',
                             'FFFFFF',
@@ -42,7 +42,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- JIRA -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'jira',
                             'Jira',
                             '0052CC',
@@ -51,7 +51,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- GMAIL -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'gmail',
                             'Google Workspace',
                             'EA4335',
@@ -60,7 +60,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- WHATSAPP -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'whatsapp',
                             'WhatsApp',
                             '25D366',
@@ -69,7 +69,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- GITHUB -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'github',
                             'GitHub',
                             'FFFFFF',
@@ -78,7 +78,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- TRELLO -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'trello',
                             'Trello',
                             '0052CC',
@@ -87,7 +87,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- ZOOM -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'zoom',
                             'Zoom',
                             '2D8CFF',
@@ -96,7 +96,7 @@ export const IntegrationsComponent = {
                         )}
                         
                         <!-- GOOGLE DRIVE -->
-                        \${renderIntegrationCard(
+                        ${renderIntegrationCard(
                             'googledrive',
                             'Google Drive',
                             'FFFFFF',
@@ -133,7 +133,7 @@ export const IntegrationsComponent = {
                 </div>
             `;
 
-            if ((window as any).lucide) (window as any).lucide.createIcons();
+            if ((window).lucide) (window).lucide.createIcons();
             setupEventListeners();
         };
 
@@ -141,21 +141,21 @@ export const IntegrationsComponent = {
             // handle the mapping for 'email' to 'gmail' icon
             const internalId = id === 'gmail' ? 'email' : id;
             return `
-                <div class="glass-card integration-card \${internalId}">
+                <div class="glass-card integration-card ${internalId}">
                     <div class="integration-card-header">
                         <div class="integration-icon">
-                            <img src="https://cdn.simpleicons.org/\${id}/\${color}" width="22" height="22" style="filter: drop-shadow(0 0 5px #\${color}50);" />
+                            <img src="https://cdn.simpleicons.org/${id}/${color}" width="22" height="22" style="filter: drop-shadow(0 0 5px #${color}50);" />
                         </div>
-                        <span class="integration-status-pill \${isConnected ? 'connected' : 'disconnected'}">
-                            \${isConnected ? 'CONNECTED' : 'DISCONNECTED'}
+                        <span class="integration-status-pill ${isConnected ? 'connected' : 'disconnected'}">
+                            ${isConnected ? 'CONNECTED' : 'DISCONNECTED'}
                         </span>
                     </div>
                     <div class="integration-info">
-                        <h4>\${name}</h4>
-                        <p>\${desc}</p>
+                        <h4>${name}</h4>
+                        <p>${desc}</p>
                     </div>
-                    <button class="integration-button \${isConnected ? 'disconnect' : 'connect'}" data-id="\${internalId}">
-                        \${isConnected ? 'Disconnect Integration' : 'Connect Workspace'}
+                    <button class="integration-button ${isConnected ? 'disconnect' : 'connect'}" data-id="${internalId}">
+                        ${isConnected ? 'Disconnect Integration' : 'Connect Workspace'}
                     </button>
                 </div>
             `;
@@ -167,7 +167,7 @@ export const IntegrationsComponent = {
             const cancelBtn = document.getElementById('oauth-cancel-btn');
             let pendingIntegrationId = null;
 
-            container.querySelectorAll('.integration-button').forEach((btn: any) => {
+            container.querySelectorAll('.integration-button').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     const id = btn.dataset.id;
                     const isConnected = integrations[id];
@@ -194,7 +194,7 @@ export const IntegrationsComponent = {
                             zoom: 'Zoom Video Communications',
                             googledrive: 'Google Drive Files'
                         };
-                        document.getElementById('oauth-title').textContent = \`Connect to \${names[id] || id}\`;
+                        document.getElementById('oauth-title').textContent = `Connect to ${names[id] || id}`;
                         
                         if (modal) modal.style.display = 'flex';
                     }
@@ -231,3 +231,7 @@ export const IntegrationsComponent = {
         loadIntegrations();
     }
 };
+
+
+
+

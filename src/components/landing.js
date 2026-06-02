@@ -285,7 +285,7 @@ export const LandingComponent = {
             </footer>
         `;
 
-        if ((window as any).lucide) (window as any).lucide.createIcons();
+        if ((window).lucide) (window).lucide.createIcons();
 
         const nodes = container.querySelectorAll('.orbit-node');
         const orbitRing = document.getElementById('landing-orbit-ring');
@@ -304,7 +304,7 @@ export const LandingComponent = {
                 btnElement.classList.remove('loading');
                 btnElement.classList.add('success');
                 btnElement.innerHTML = `<i class="lucide-icon" data-lucide="check-circle"></i> CORE DEPLOYED`;
-                if ((window as any).lucide) (window as any).lucide.createIcons();
+                if ((window).lucide) (window).lucide.createIcons();
                 
                 setTimeout(() => {
                     navigateToRegister();
@@ -322,7 +322,7 @@ export const LandingComponent = {
             ctaRegisterBtn.addEventListener('click', () => handleDeployClick(ctaRegisterBtn));
         }
 
-        nodes.forEach((node: any) => {
+        nodes.forEach((node) => {
             // Hover pauses the 3D rotating carousel
             node.addEventListener('mouseenter', () => {
                 if(orbitRing) orbitRing.classList.add('paused');
@@ -355,7 +355,7 @@ export const LandingComponent = {
             modalOverlay.innerHTML = `
                 <div class="glass-card" style="max-width: 600px; width: 90%; padding: 2.5rem; border: 1px solid rgba(0, 240, 255, 0.2); text-align: center;">
                     <div class="logo-icon" style="margin: 0 auto 1.5rem auto; width: 48px; height: 48px;"></div>
-                    <h2 style="font-family: 'Orbitron', sans-serif; margin-bottom: 1rem; color: #fff;">\${title}</h2>
+                    <h2 style="font-family: 'Orbitron', sans-serif; margin-bottom: 1rem; color: #fff;">${title}</h2>
                     <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; text-align: left; margin-bottom: 2rem; max-height: 250px; overflow-y: auto; padding-right: 1rem;">
                         <p style="margin-bottom: 1rem;">Welcome to Aura AI (JARVIS). By accessing or using our platform, you agree to be bound by these Terms of Service and our Privacy Policy.</p>
                         <p style="margin-bottom: 1rem;"><strong>1. Data Usage:</strong> We securely process telemetry data from your connected integrations (Slack, Figma, Notion, etc.) to synthesize actionable intelligence. All data remains encrypted at rest and in transit.</p>
@@ -389,3 +389,6 @@ export const LandingComponent = {
         }
     }
 };
+
+
+

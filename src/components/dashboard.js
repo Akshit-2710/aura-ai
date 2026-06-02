@@ -55,10 +55,10 @@ export const DashboardComponent = {
                     
                     <div class="sidebar-bottom">
                         <div class="user-badge" style="border-color: rgba(0, 240, 255, 0.15);">
-                            <div class="user-avatar">\${user.name.split(' ').map((n)=>n[0]).join('')}</div>
+                            <div class="user-avatar">${user.name.split(' ').map((n)=>n[0]).join('')}</div>
                             <div class="user-info">
-                                <span class="user-name">\${user.name}</span>
-                                <span class="user-role">\${user.role}</span>
+                                <span class="user-name">${user.name}</span>
+                                <span class="user-role">${user.role}</span>
                             </div>
                         </div>
                         <button class="btn-logout" id="dashboard-logout-btn">
@@ -97,7 +97,7 @@ export const DashboardComponent = {
             </div>
         `;
 
-        if ((window as any).lucide) (window as any).lucide.createIcons();
+        if ((window).lucide) (window).lucide.createIcons();
 
         // Subview dispatcher
         const viewPort = document.getElementById('viewport-content');
@@ -134,7 +134,7 @@ export const DashboardComponent = {
         };
 
         const loadTab = (tabId, context = null) => {
-            menuItems.forEach((item: any) => {
+            menuItems.forEach((item) => {
                 if (item.dataset.tab === tabId) {
                     item.classList.add('active');
                 } else {
@@ -151,7 +151,7 @@ export const DashboardComponent = {
         };
 
         // Tab Navigation click handlers
-        menuItems.forEach((item: any) => {
+        menuItems.forEach((item) => {
             item.addEventListener('click', () => {
                 loadTab(item.dataset.tab);
             });
@@ -167,3 +167,6 @@ export const DashboardComponent = {
         loadTab('feed');
     }
 };
+
+
+

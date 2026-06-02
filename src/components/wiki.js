@@ -21,7 +21,7 @@ export const WikiComponent = {
                         <!-- XSS Protection: Escape searchQuery inside input tag attributes -->
                         <div class="wiki-search-box" style="border-color: rgba(0, 240, 255, 0.15); background: rgba(0, 240, 255, 0.02);">
                             <i class="lucide-icon" data-lucide="search" style="width: 18px; height: 18px; color: var(--text-muted);"></i>
-                            <input type="text" id="wiki-search-input" placeholder="Query banking partner rate limits, auth flows, stripe, or hacks..." value="\${escapeHTML(searchQuery as any)}">
+                            <input type="text" id="wiki-search-input" placeholder="Query banking partner rate limits, auth flows, stripe, or hacks..." value="${escapeHTML(searchQuery)}">
                         </div>
                         
                         <button class="glow-btn" id="btn-add-wiki" style="display: flex; align-items: center; gap: 0.5rem;">
@@ -32,38 +32,38 @@ export const WikiComponent = {
                     <!-- Category Tabs -->
                     <div class="feed-filters" style="margin-top: 0.5rem;">
                         <div class="filter-pills">
-                            \${categories.map(cat => \`
-                                <button class="filter-btn wiki-cat-btn \${cat === selectedCategory ? 'active' : ''}" data-category="\${cat as any}">
-                                    \${escapeHTML((cat as any).toUpperCase())}
+                            ${categories.map(cat => `
+                                <button class="filter-btn wiki-cat-btn ${cat === selectedCategory ? 'active' : ''}" data-category="${cat}">
+                                    ${escapeHTML((cat).toUpperCase())}
                                 </button>
-                            \`).join('')}
+                            `).join('')}
                         </div>
                     </div>
 
                     <!-- Wiki Grid -->
                     <div class="wiki-grid" id="wiki-grid-cards">
-                        \${filteredCards.length === 0 ? \`
+                        ${filteredCards.length === 0 ? `
                             <div class="glass-card" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-secondary);">
                                 <i class="lucide-icon" data-lucide="alert-triangle" style="width: 48px; height: 48px; color: hsla(var(--warning), 1); margin-bottom: 1rem;"></i>
                                 <h3 style="font-family: 'Orbitron', sans-serif;">QUERY RESULT DEVOID</h3>
                                 <p style="margin-top: 0.5rem; font-size: 0.9rem;">No indexed knowledge cards match the targeting coordinates.</p>
                             </div>
-                        \` : filteredCards.map(c => \`
+                        ` : filteredCards.map(c => `
                             <div class="glass-card wiki-card">
                                 <div class="wiki-card-header">
-                                    <span class="wiki-category-tag">\${escapeHTML(c.category)}</span>
+                                    <span class="wiki-category-tag">${escapeHTML(c.category)}</span>
                                 </div>
-                                <h4 style="font-family: 'Orbitron', sans-serif; font-size: 0.95rem; color:#fff;">\${escapeHTML(c.title)}</h4>
-                                <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem;">\${escapeHTML(c.description)}</p>
+                                <h4 style="font-family: 'Orbitron', sans-serif; font-size: 0.95rem; color:#fff;">${escapeHTML(c.title)}</h4>
+                                <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem;">${escapeHTML(c.description)}</p>
                                 <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
-                                    \${c.tags.map(t => \`<span style="font-size: 0.72rem; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.15); color: var(--text-muted); padding: 0.15rem 0.4rem; border-radius: 0;">#\${escapeHTML(t)}</span>\`).join('')}
+                                    ${c.tags.map(t => `<span style="font-size: 0.72rem; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.15); color: var(--text-muted); padding: 0.15rem 0.4rem; border-radius: 0;">#${escapeHTML(t)}</span>`).join('')}
                                 </div>
                                 <div class="wiki-card-footer">
-                                    <span>UPDATED \${escapeHTML(c.updatedAt.toUpperCase())}</span>
-                                    <span>BY \${escapeHTML(c.author.split(' ')[0].toUpperCase())}</span>
+                                    <span>UPDATED ${escapeHTML(c.updatedAt.toUpperCase())}</span>
+                                    <span>BY ${escapeHTML(c.author.split(' ')[0].toUpperCase())}</span>
                                 </div>
                             </div>
-                        \`).join('')}
+                        `).join('')}
                     </div>
                 </div>
 
@@ -101,17 +101,17 @@ export const WikiComponent = {
                 </div>
             `;
 
-            if ((window as any).lucide) (window as any).lucide.createIcons();
+            if ((window).lucide) (window).lucide.createIcons();
             setupEventListeners();
         };
 
         const setupEventListeners = () => {
             const searchInput = document.getElementById('wiki-search-input');
             if (searchInput) searchInput.addEventListener('input', (e) => {
-                searchQuery = (e.target as any).value;
+                searchQuery = (e.target).value;
                 
                 // Real-time filtering search query
-                const cards = Store.wiki.get(searchQuery as any);
+                const cards = Store.wiki.get(searchQuery);
                 const filteredCards = selectedCategory === 'all' 
                     ? cards 
                     : cards.filter(c => c.category === selectedCategory);
@@ -129,25 +129,25 @@ export const WikiComponent = {
                     grid.innerHTML = filteredCards.map(c => `
                         <div class="glass-card wiki-card">
                             <div class="wiki-card-header">
-                                <span class="wiki-category-tag">\${escapeHTML(c.category)}</span>
+                                <span class="wiki-category-tag">${escapeHTML(c.category)}</span>
                             </div>
-                            <h4 style="font-family: 'Orbitron', sans-serif; font-size: 0.95rem; color:#fff;">\${escapeHTML(c.title)}</h4>
-                            <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem;">\${escapeHTML(c.description)}</p>
+                            <h4 style="font-family: 'Orbitron', sans-serif; font-size: 0.95rem; color:#fff;">${escapeHTML(c.title)}</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem;">${escapeHTML(c.description)}</p>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
-                                \${c.tags.map(t => \`<span style="font-size: 0.72rem; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.15); color: var(--text-muted); padding: 0.15rem 0.4rem; border-radius: 0;">#\${escapeHTML(t)}</span>\`).join('')}
+                                ${c.tags.map(t => `<span style="font-size: 0.72rem; background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.15); color: var(--text-muted); padding: 0.15rem 0.4rem; border-radius: 0;">#${escapeHTML(t)}</span>`).join('')}
                             </div>
                             <div class="wiki-card-footer">
-                                <span>UPDATED \${escapeHTML(c.updatedAt.toUpperCase())}</span>
-                                <span>BY \${escapeHTML(c.author.split(' ')[0].toUpperCase())}</span>
+                                <span>UPDATED ${escapeHTML(c.updatedAt.toUpperCase())}</span>
+                                <span>BY ${escapeHTML(c.author.split(' ')[0].toUpperCase())}</span>
                             </div>
                         </div>
                     `).join('');
                 }
-                if ((window as any).lucide) (window as any).lucide.createIcons();
+                if ((window).lucide) (window).lucide.createIcons();
             });
 
             // Category select
-            container.querySelectorAll('.wiki-cat-btn').forEach((btn: any) => {
+            container.querySelectorAll('.wiki-cat-btn').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     selectedCategory = btn.dataset.category;
                     loadWiki();
@@ -177,10 +177,10 @@ export const WikiComponent = {
             const form = document.getElementById('add-wiki-form');
             if (form) form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const title = (document.getElementById('w-title') as any).value;
-                const category = (document.getElementById('w-category') as any).value;
-                const description = (document.getElementById('w-description') as any).value;
-                const tagsRaw = (document.getElementById('w-tags') as any).value;
+                const title = (document.getElementById('w-title')).value;
+                const category = (document.getElementById('w-category')).value;
+                const description = (document.getElementById('w-description')).value;
+                const tagsRaw = (document.getElementById('w-tags')).value;
                 const tags = tagsRaw ? tagsRaw.split(',').map(s => s.trim().toLowerCase()) : [];
 
                 const user = Store.auth.getCurrentUser();
@@ -191,7 +191,7 @@ export const WikiComponent = {
                     category,
                     description,
                     tags,
-                    author: \`\${user.name} (\${user.role})\`
+                    author: `${user.name} (${user.role})`
                 });
 
                 if (modal) modal.style.display = 'none';
@@ -202,3 +202,7 @@ export const WikiComponent = {
         loadWiki();
     }
 };
+
+
+
+

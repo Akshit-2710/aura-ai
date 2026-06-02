@@ -6,11 +6,11 @@ const formatTimeAgo = (isoString) => {
     const diff = Date.now() - new Date(isoString).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return 'Just now';
-    if (mins < 60) return \`\${mins} min ago\`;
+    if (mins < 60) return `${mins} min ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return \`\${hrs}h ago\`;
+    if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
-    if (days < 7) return \`\${days}d ago\`;
+    if (days < 7) return `${days}d ago`;
     return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
@@ -44,13 +44,13 @@ export const TasksComponent = {
                         </button>
                     </div>
 
-                    \${tasks.length === 0 ? \`
+                    ${tasks.length === 0 ? `
                         <div class="glass-card" style="padding: 3rem; text-align: center; color: var(--text-secondary); border: 1px dashed rgba(0, 240, 255, 0.2); margin-top: 1.5rem;">
                             <i class="lucide-icon" data-lucide="clipboard-list" style="width: 44px; height: 44px; color: hsla(var(--primary), 0.5); margin-bottom: 1rem;"></i>
                             <h3 style="font-family: 'Orbitron', sans-serif; color: hsla(var(--primary), 1); font-size: 1rem;">NO TASKS INDEXED</h3>
                             <p style="margin-top: 0.5rem; font-size: 0.85rem; max-width: 420px; margin-inline: auto;">Tasks appear here when you take action on Priority Feed alerts, record meetings, or create them manually with <strong>INDEX NEW TASK</strong> above.</p>
                         </div>
-                    \` : ''}
+                    ` : ''}
 
                     <!-- Kanban Columns -->
                     <div class="tasks-grid">
@@ -58,10 +58,10 @@ export const TasksComponent = {
                         <div class="tasks-column">
                             <div class="column-header">
                                 <span class="column-title">PENDING TRACKING</span>
-                                <span class="task-count">\${columns['todo'].length}</span>
+                                <span class="task-count">${columns['todo'].length}</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 200px;" id="col-todo">
-                                \${columns['todo'].map(t => renderTaskCard(t)).join('')}
+                                ${columns['todo'].map(t => renderTaskCard(t)).join('')}
                             </div>
                         </div>
 
@@ -69,10 +69,10 @@ export const TasksComponent = {
                         <div class="tasks-column">
                             <div class="column-header">
                                 <span class="column-title">ACTIVE DEV</span>
-                                <span class="task-count">\${columns['in-progress'].length}</span>
+                                <span class="task-count">${columns['in-progress'].length}</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 200px;" id="col-inprogress">
-                                \${columns['in-progress'].map(t => renderTaskCard(t)).join('')}
+                                ${columns['in-progress'].map(t => renderTaskCard(t)).join('')}
                             </div>
                         </div>
 
@@ -80,10 +80,10 @@ export const TasksComponent = {
                         <div class="tasks-column">
                             <div class="column-header">
                                 <span class="column-title">ARCHIVED LOGS</span>
-                                <span class="task-count">\${columns['done'].length}</span>
+                                <span class="task-count">${columns['done'].length}</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 200px;" id="col-done">
-                                \${columns['done'].map(t => renderTaskCard(t)).join('')}
+                                ${columns['done'].map(t => renderTaskCard(t)).join('')}
                             </div>
                         </div>
                     </div>
@@ -117,7 +117,7 @@ export const TasksComponent = {
                 </div>
             `;
 
-            if ((window as any).lucide) (window as any).lucide.createIcons();
+            if ((window).lucide) (window).lucide.createIcons();
             setupEventListeners();
         };
 
@@ -132,64 +132,64 @@ export const TasksComponent = {
             const cleanDueDate = escapeHTML(t.dueDate);
 
             return `
-                <div class="glass-card task-card" data-id="\${t.id}">
+                <div class="glass-card task-card" data-id="${t.id}">
                     <div class="task-card-header">
                         <span class="task-source-icon">
                             <i class="lucide-icon" data-lucide="compass" style="width: 12px; height: 12px; margin-right: 0.25rem;"></i>
-                            \${cleanSource}
+                            ${cleanSource}
                         </span>
                         
                         <!-- Status shift controls -->
                         <div>
                             <select class="task-status-select" style="background: rgba(0, 240, 255, 0.02); border: 1px solid var(--border-color); padding: 0.1rem 0.3rem; color: var(--text-muted); font-size: 0.72rem; outline: none; cursor: pointer; font-family: 'Orbitron', sans-serif;">
-                                <option value="todo" style="background: #020408;" \${t.status === 'todo' ? 'selected' : ''}>PENDING</option>
-                                <option value="in-progress" style="background: #020408;" \${t.status === 'in-progress' ? 'selected' : ''}>ACTIVE</option>
-                                <option value="done" style="background: #020408;" \${t.status === 'done' ? 'selected' : ''}>ARCHIVED</option>
+                                <option value="todo" style="background: #020408;" ${t.status === 'todo' ? 'selected' : ''}>PENDING</option>
+                                <option value="in-progress" style="background: #020408;" ${t.status === 'in-progress' ? 'selected' : ''}>ACTIVE</option>
+                                <option value="done" style="background: #020408;" ${t.status === 'done' ? 'selected' : ''}>ARCHIVED</option>
                             </select>
                         </div>
                     </div>
                     
-                    <h4 style="font-size: 0.88rem; color:#fff;">\${cleanTitle}</h4>
+                    <h4 style="font-size: 0.88rem; color:#fff;">${cleanTitle}</h4>
                     
                     <div class="task-assignee">
-                        <div class="assignee-avatar">\${escapeHTML(initials.toUpperCase())}</div>
-                        <span class="assignee-name">\${cleanAssignee}</span>
+                        <div class="assignee-avatar">${escapeHTML(initials.toUpperCase())}</div>
+                        <span class="assignee-name">${cleanAssignee}</span>
                     </div>
 
                     <!-- Due date indicator -->
                     <div class="task-footer">
-                        <span class="task-due \${isOverdue ? 'overdue' : ''}">
+                        <span class="task-due ${isOverdue ? 'overdue' : ''}">
                             <i class="lucide-icon" data-lucide="clock" style="width: 12px; height: 12px; margin-right: 0.25rem;"></i>
-                            TARGET: \${cleanDueDate} \${isOverdue ? '(OVERDUE)' : ''}
+                            TARGET: ${cleanDueDate} ${isOverdue ? '(OVERDUE)' : ''}
                         </span>
-                        \${t.createdAt ? \`
+                        ${t.createdAt ? `
                             <span style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="lucide-icon" data-lucide="calendar-plus" style="width: 10px; height: 10px;"></i>
-                                CREATED: \${formatFullDate(t.createdAt)} (\${formatTimeAgo(t.createdAt)})
+                                CREATED: ${formatFullDate(t.createdAt)} (${formatTimeAgo(t.createdAt)})
                             </span>
-                        \` : ''}
+                        ` : ''}
                     </div>
 
                     <!-- JARVIS check-in log -->
-                    \${t.pings.length > 0 ? \`
+                    ${t.pings.length > 0 ? `
                         <div class="followup-ping-log">
                             <span style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: hsla(var(--primary), 1); letter-spacing: 0.05em; margin-bottom: 0.25rem;">NUDGE TELEMETRY LOG</span>
-                            \${t.pings.slice(-2).map(p => \`
-                                <div class="ping-item \${p.escalated ? 'escalated' : ''}">
-                                    <i class="lucide-icon" data-lucide="\${p.escalated ? 'alert-triangle' : 'message-circle'}" style="width: 10px; height: 10px;"></i>
-                                    <span style="flex: 1;">\${escapeHTML(p.message)}</span>
-                                    <span style="font-size: 0.6rem; color: var(--text-muted); white-space: nowrap; margin-left: 0.5rem;">\${formatFullDate(p.timestamp)}</span>
+                            ${t.pings.slice(-2).map(p => `
+                                <div class="ping-item ${p.escalated ? 'escalated' : ''}">
+                                    <i class="lucide-icon" data-lucide="${p.escalated ? 'alert-triangle' : 'message-circle'}" style="width: 10px; height: 10px;"></i>
+                                    <span style="flex: 1;">${escapeHTML(p.message)}</span>
+                                    <span style="font-size: 0.6rem; color: var(--text-muted); white-space: nowrap; margin-left: 0.5rem;">${formatFullDate(p.timestamp)}</span>
                                 </div>
-                            \`).join('')}
+                            `).join('')}
                         </div>
-                    \` : ''}
+                    ` : ''}
 
                     <!-- Nudge Actions -->
-                    \${t.status !== 'done' ? \`
+                    ${t.status !== 'done' ? `
                         <button class="btn-action btn-nudge" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; margin-top: 0.25rem; width:100%;">
                             <i class="lucide-icon" data-lucide="bell" style="width: 12px; height: 12px;"></i> TRIGGER NUDGE NODE
                         </button>
-                    \` : ''}
+                    ` : ''}
                 </div>
             `;
         };
@@ -198,9 +198,9 @@ export const TasksComponent = {
             // Status update
             container.querySelectorAll('.task-status-select').forEach(select => {
                 select.addEventListener('change', (e) => {
-                    const card = (e.target as any).closest('.task-card');
+                    const card = (e.target).closest('.task-card');
                     const id = card.dataset.id;
-                    const newStatus = (e.target as any).value;
+                    const newStatus = (e.target).value;
                     Store.tasks.updateStatus(id, newStatus);
                     loadTasks();
                 });
@@ -209,7 +209,7 @@ export const TasksComponent = {
             // Nudge button
             container.querySelectorAll('.btn-nudge').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const card = (e.target as any).closest('.task-card');
+                    const card = (e.target).closest('.task-card');
                     const id = card.dataset.id;
                     
                     Store.tasks.ping(id);
@@ -219,9 +219,9 @@ export const TasksComponent = {
                     card.style.borderColor = 'rgba(0, 240, 255, 0.8)';
                     card.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.5)';
                     
-                    (btn as any).disabled = true;
-                    btn.innerHTML = \`<i class="lucide-icon" data-lucide="check" style="width:12px;height:12px;"></i> CHANNEL PING SENT\`;
-                    if ((window as any).lucide) (window as any).lucide.createIcons();
+                    (btn).disabled = true;
+                    btn.innerHTML = `<i class="lucide-icon" data-lucide="check" style="width:12px;height:12px;"></i> CHANNEL PING SENT`;
+                    if ((window).lucide) (window).lucide.createIcons();
 
                     setTimeout(() => {
                         loadTasks();
@@ -252,10 +252,10 @@ export const TasksComponent = {
             const form = document.getElementById('add-task-form');
             if (form) form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const title = (document.getElementById('t-title') as any).value;
-                const assignee = (document.getElementById('t-assignee') as any).value;
-                const source = (document.getElementById('t-source') as any).value;
-                const dueRaw = (document.getElementById('t-due') as any).value;
+                const title = (document.getElementById('t-title')).value;
+                const assignee = (document.getElementById('t-assignee')).value;
+                const source = (document.getElementById('t-source')).value;
+                const dueRaw = (document.getElementById('t-due')).value;
 
                 const dateObj = new Date(dueRaw);
                 const dueDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -275,3 +275,6 @@ export const TasksComponent = {
         loadTasks();
     }
 };
+
+
+
