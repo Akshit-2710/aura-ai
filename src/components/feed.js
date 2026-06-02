@@ -6,11 +6,11 @@ const formatTimeAgo = (isoString) => {
     const diff = Date.now() - new Date(isoString).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return 'Just now';
-    if (mins < 60) return \`\${mins} min ago\`;
+    if (mins < 60) return `${mins} min ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return \`\${hrs}h ago\`;
+    if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
-    if (days < 7) return \`\${days}d ago\`;
+    if (days < 7) return `${days}d ago`;
     return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
@@ -55,9 +55,9 @@ export const FeedComponent = {
                         <!-- 3D Viewport inside Feed -->
                         <div class="orbit-viewport" style="height: 320px; margin: 0.5rem 0;">
                             <div class="hud-telemetry tl">SYS STATUS: SCANNING</div>
-                            <div class="hud-telemetry tr">ACTIVE NODES: \${connectedCount}/10</div>
-                            <div class="hud-telemetry bl">THREAT: \${threatStatus}</div>
-                            <div class="hud-telemetry br">CORE SYNC: \${Math.round(connectedCount / 10 * 100)}%</div>
+                            <div class="hud-telemetry tr">ACTIVE NODES: ${connectedCount}/10</div>
+                            <div class="hud-telemetry bl">THREAT: ${threatStatus}</div>
+                            <div class="hud-telemetry br">CORE SYNC: ${Math.round(connectedCount / 10 * 100)}%</div>
 
                             <!-- Central Pulsing Core -->
                             <div class="jarvis-orb">
@@ -71,42 +71,42 @@ export const FeedComponent = {
                             <div id="feed-orbit-carousel">
                                 <!-- RING 1 -->
                                 <div class="electron-ring ring-1">
-                                    <div class="electron-node orbit-node slack \${integrations.slack ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: 0s;" data-id="slack">
+                                    <div class="electron-node orbit-node slack ${integrations.slack ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: 0s;" data-id="slack">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/slack/E01E5A" alt="Slack"></div>
                                     </div>
-                                    <div class="electron-node orbit-node figma \${integrations.figma ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -2.5s;" data-id="figma">
+                                    <div class="electron-node orbit-node figma ${integrations.figma ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -2.5s;" data-id="figma">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/figma/F24E1E" alt="Figma"></div>
                                     </div>
-                                    <div class="electron-node orbit-node notion \${integrations.notion ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -5s;" data-id="notion">
+                                    <div class="electron-node orbit-node notion ${integrations.notion ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -5s;" data-id="notion">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/notion/FFFFFF" alt="Notion"></div>
                                     </div>
-                                    <div class="electron-node orbit-node jira \${integrations.jira ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -7.5s;" data-id="jira">
+                                    <div class="electron-node orbit-node jira ${integrations.jira ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -7.5s;" data-id="jira">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/jira/0052CC" alt="Jira"></div>
                                     </div>
                                 </div>
 
                                 <!-- RING 2 -->
                                 <div class="electron-ring ring-2">
-                                    <div class="electron-node orbit-node email \${integrations.email ? 'connected' : 'disconnected'}" style="--orbit-speed: 14s; --delay: 0s;" data-id="email">
+                                    <div class="electron-node orbit-node email ${integrations.email ? 'connected' : 'disconnected'}" style="--orbit-speed: 14s; --delay: 0s;" data-id="email">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/gmail/EA4335" alt="Gmail"></div>
                                     </div>
-                                    <div class="electron-node orbit-node whatsapp \${integrations.whatsapp ? 'connected' : 'disconnected'}" style="--orbit-speed: 14s; --delay: -4.67s;" data-id="whatsapp">
+                                    <div class="electron-node orbit-node whatsapp ${integrations.whatsapp ? 'connected' : 'disconnected'}" style="--orbit-speed: 14s; --delay: -4.67s;" data-id="whatsapp">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/whatsapp/25D366" alt="WhatsApp"></div>
                                     </div>
-                                    <div class="electron-node orbit-node github \${integrations.github ? 'connected' : 'disconnected'}" style="--orbit-speed: 14s; --delay: -9.33s;" data-id="github">
+                                    <div class="electron-node orbit-node github ${integrations.github ? 'connected' : 'disconnected'}" style="--orbit-speed: 14s; --delay: -9.33s;" data-id="github">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/github/FFFFFF" alt="GitHub"></div>
                                     </div>
                                 </div>
 
                                 <!-- RING 3 -->
                                 <div class="electron-ring ring-3">
-                                    <div class="electron-node orbit-node trello \${integrations.trello ? 'connected' : 'disconnected'}" style="--orbit-speed: 18s; --delay: 0s;" data-id="trello">
+                                    <div class="electron-node orbit-node trello ${integrations.trello ? 'connected' : 'disconnected'}" style="--orbit-speed: 18s; --delay: 0s;" data-id="trello">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/trello/0052CC" alt="Trello"></div>
                                     </div>
-                                    <div class="electron-node orbit-node zoom \${integrations.zoom ? 'connected' : 'disconnected'}" style="--orbit-speed: 18s; --delay: -6s;" data-id="zoom">
+                                    <div class="electron-node orbit-node zoom ${integrations.zoom ? 'connected' : 'disconnected'}" style="--orbit-speed: 18s; --delay: -6s;" data-id="zoom">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/zoom/2D8CFF" alt="Zoom"></div>
                                     </div>
-                                    <div class="electron-node orbit-node googledrive \${integrations.googledrive ? 'connected' : 'disconnected'}" style="--orbit-speed: 18s; --delay: -12s;" data-id="googledrive">
+                                    <div class="electron-node orbit-node googledrive ${integrations.googledrive ? 'connected' : 'disconnected'}" style="--orbit-speed: 18s; --delay: -12s;" data-id="googledrive">
                                         <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/googledrive/FFFFFF" alt="Google Drive"></div>
                                     </div>
                                 </div>
@@ -132,48 +132,48 @@ export const FeedComponent = {
                     <!-- Filters & Stats -->
                     <div class="feed-filters" style="margin-top: 1rem;">
                         <div class="filter-pills">
-                            <button class="filter-btn \${priorityFilter === 'all' ? 'active' : ''}" data-filter="all">All Diagnostics</button>
-                            <button class="filter-btn \${priorityFilter === 'high' ? 'active' : ''}" data-filter="high">High Blocks</button>
-                            <button class="filter-btn \${priorityFilter === 'medium' ? 'active' : ''}" data-filter="medium">Medium Advisories</button>
-                            <button class="filter-btn \${priorityFilter === 'low' ? 'active' : ''}" data-filter="low">Low Logs</button>
+                            <button class="filter-btn ${priorityFilter === 'all' ? 'active' : ''}" data-filter="all">All Diagnostics</button>
+                            <button class="filter-btn ${priorityFilter === 'high' ? 'active' : ''}" data-filter="high">High Blocks</button>
+                            <button class="filter-btn ${priorityFilter === 'medium' ? 'active' : ''}" data-filter="medium">Medium Advisories</button>
+                            <button class="filter-btn ${priorityFilter === 'low' ? 'active' : ''}" data-filter="low">Low Logs</button>
                         </div>
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.78rem; color: var(--text-muted);">
-                            SYS_ALERTS: \${activeItems.length} ACTIVE // \${resolvedItems.length} ARCHIVED
+                            SYS_ALERTS: ${activeItems.length} ACTIVE // ${resolvedItems.length} ARCHIVED
                         </div>
                     </div>
 
                     <!-- Feed List -->
                     <div class="feed-cards-list">
-                        \${noAppsConnected && activeItems.length === 0 ? \`
+                        ${noAppsConnected && activeItems.length === 0 ? `
                             <div class="glass-card" style="padding: 3rem; text-align: center; color: var(--text-secondary); border: 1px dashed rgba(0, 240, 255, 0.25);">
                                 <i class="lucide-icon" data-lucide="plug-zap" style="width: 44px; height: 44px; color: hsla(var(--primary), 0.6); margin-bottom: 1rem;"></i>
                                 <h3 style="font-family: 'Orbitron', sans-serif; color: hsla(var(--primary), 1); font-size: 1rem;">NO INTEGRATIONS ONLINE</h3>
                                 <p style="margin-top: 0.5rem; font-size: 0.85rem; max-width: 400px; margin-inline: auto;">Connect your workplace apps in the <strong>Integrations</strong> panel to activate the JARVIS Priority Feed. No data will be shown until you authorize at least one source.</p>
                                 <button class="glow-btn" id="btn-go-integrations" style="margin-top: 1.25rem; padding: 0.5rem 1.25rem; font-size: 0.78rem; border: none;">OPEN INTEGRATIONS</button>
                             </div>
-                        \` : activeItems.length === 0 && resolvedItems.length === 0 ? \`
+                        ` : activeItems.length === 0 && resolvedItems.length === 0 ? `
                             <div class="glass-card" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
                                 <i class="lucide-icon" data-lucide="check-circle" style="width: 40px; height: 40px; color: hsla(var(--success), 1); margin-bottom: 1rem;"></i>
                                 <h3 style="font-family: 'Orbitron', sans-serif;">INTEGRITY COCKPIT STABLE</h3>
                                 <p style="margin-top: 0.5rem; font-size: 0.9rem;">All connected streams are clean. 0 warnings logged.</p>
                             </div>
-                        \` : ''}
+                        ` : ''}
 
                         <!-- Active items -->
-                        \${activeItems.map(item => renderFeedCard(item)).join('')}
+                        ${activeItems.map(item => renderFeedCard(item)).join('')}
 
                         <!-- Resolved items separator -->
-                        \${resolvedItems.length > 0 ? \`
+                        ${resolvedItems.length > 0 ? `
                             <div style="margin: 2rem 0 1rem 0; border-bottom: 1px solid rgba(0, 240, 255, 0.1); padding-bottom: 0.5rem;">
                                 <span style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">SYSTEM LOG ARCHIVE</span>
                             </div>
-                            \${resolvedItems.map(item => renderFeedCard(item)).join('')}
-                        \` : ''}
+                            ${resolvedItems.map(item => renderFeedCard(item)).join('')}
+                        ` : ''}
                     </div>
                 </div>
             `;
 
-            if ((window as any).lucide) (window as any).lucide.createIcons();
+            if ((window).lucide) (window).lucide.createIcons();
             setupEventListeners();
         };
 
@@ -195,30 +195,30 @@ export const FeedComponent = {
             const cleanActionLabel = escapeHTML(item.actionLabel);
 
             return `
-                <div class="glass-card feed-item-card \${item.source} \${item.resolved ? 'resolved' : ''}" data-id="\${item.id}">
+                <div class="glass-card feed-item-card ${item.source} ${item.resolved ? 'resolved' : ''}" data-id="${item.id}">
                     <div class="feed-item-source">
-                        <i class="lucide-icon" data-lucide="\${iconMap[item.source] || 'bell'}"></i>
+                        <i class="lucide-icon" data-lucide="${iconMap[item.source] || 'bell'}"></i>
                     </div>
                     <div class="feed-item-content">
                         <div class="feed-item-meta">
-                            <span class="source-label">\${item.source}</span>
-                            <span class="time-label" title="\${formatFullDate(item.createdAt)}">
-                                <i class="lucide-icon" data-lucide="clock" style="width:10px;height:10px;margin-right:3px;vertical-align:-1px;"></i>\${formatTimeAgo(item.createdAt)}
+                            <span class="source-label">${item.source}</span>
+                            <span class="time-label" title="${formatFullDate(item.createdAt)}">
+                                <i class="lucide-icon" data-lucide="clock" style="width:10px;height:10px;margin-right:3px;vertical-align:-1px;"></i>${formatTimeAgo(item.createdAt)}
                             </span>
-                            <span class="priority-badge \${item.priority}">\${item.priority}</span>
+                            <span class="priority-badge ${item.priority}">${item.priority}</span>
                         </div>
-                        <h4 class="feed-item-title">\${cleanTitle}</h4>
-                        <p class="feed-item-snippet">\${cleanSnippet}</p>
+                        <h4 class="feed-item-title">${cleanTitle}</h4>
+                        <p class="feed-item-snippet">${cleanSnippet}</p>
                         
-                        \${!item.resolved ? \`
+                        ${!item.resolved ? `
                             <div class="ai-synthesis-box">
                                 <h5><i class="lucide-icon" data-lucide="sparkles" style="width: 12px; height: 12px;"></i> JARVIS Core Synthesis</h5>
-                                <p>\${cleanSynthesis}</p>
+                                <p>${cleanSynthesis}</p>
                             </div>
-                        \` : ''}
+                        ` : ''}
 
                         <div class="feed-actions">
-                            \${cleanActionLabel && cleanActionLabel !== 'none' ? \`<button class="btn-action primary btn-special" data-type="\${item.actionType}">\${cleanActionLabel}</button>\` : ''}
+                            ${cleanActionLabel && cleanActionLabel !== 'none' ? `<button class="btn-action primary btn-special" data-type="${item.actionType}">${cleanActionLabel}</button>` : ''}
                             <button class="btn-action btn-resolve">Dismiss Alert</button>
                         </div>
                     </div>
@@ -232,11 +232,11 @@ export const FeedComponent = {
             if (broadcastForm) {
                 broadcastForm.addEventListener('submit', (e) => {
                     e.preventDefault();
-                    const text = (document.getElementById('input-update-text') as any).value;
+                    const text = (document.getElementById('input-update-text')).value;
                     if (!text.trim()) return;
 
                     Store.feed.add({
-                        title: \`\${escapeHTML(user.name)} shared an update\`,
+                        title: `${escapeHTML(user.name)} shared an update`,
                         snippet: text,
                         priority: 'low',
                         aiSynthesis: 'Broadcasted telemetry status directly to teammate dashboards.',
@@ -244,7 +244,7 @@ export const FeedComponent = {
                         actionLabel: 'none'
                     });
 
-                    (document.getElementById('input-update-text') as any).value = '';
+                    (document.getElementById('input-update-text')).value = '';
                     loadFeed(activePriorityFilter);
                 });
             }
@@ -252,7 +252,7 @@ export const FeedComponent = {
             // Filters
             container.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    loadFeed((btn as any).dataset.filter);
+                    loadFeed((btn).dataset.filter);
                 });
             });
 
@@ -263,7 +263,7 @@ export const FeedComponent = {
             }
 
             // Orbit Node clicks navigate to Integrations if disconnected, or filter feed if connected
-            container.querySelectorAll('.orbit-node').forEach((node: any) => {
+            container.querySelectorAll('.orbit-node').forEach((node) => {
                 node.addEventListener('click', () => {
                     const source = node.dataset.id;
                     const integrations = Store.integrations.get();
@@ -272,7 +272,7 @@ export const FeedComponent = {
                         navigateToTab('integrations');
                     } else {
                         // Filter the feed by the selected integration source
-                        document.querySelectorAll('.feed-item-card').forEach((card: any) => {
+                        document.querySelectorAll('.feed-item-card').forEach((card) => {
                             if(card.classList.contains(source)) {
                                 card.style.display = 'flex';
                             } else {
@@ -281,7 +281,7 @@ export const FeedComponent = {
                         });
                         
                         // Highlight the active node visually
-                        container.querySelectorAll('.orbit-node').forEach((n: any) => n.style.opacity = '0.3');
+                        container.querySelectorAll('.orbit-node').forEach((n) => n.style.opacity = '0.3');
                         node.style.opacity = '1';
                     }
                 });
@@ -290,7 +290,7 @@ export const FeedComponent = {
             // Clicking any main filter button resets the orb source filter
             container.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    container.querySelectorAll('.orbit-node').forEach((n: any) => n.style.opacity = '1');
+                    container.querySelectorAll('.orbit-node').forEach((n) => n.style.opacity = '1');
                     // loadFeed handles the rest
                 });
             });
@@ -298,7 +298,7 @@ export const FeedComponent = {
             // Dismiss alert Action
             container.querySelectorAll('.btn-resolve').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const id = (e.target as any).closest('.feed-item-card').dataset.id;
+                    const id = (e.target).closest('.feed-item-card').dataset.id;
                     Store.feed.resolve(id);
                     loadFeed(activePriorityFilter);
                 });
@@ -307,9 +307,9 @@ export const FeedComponent = {
             // Dedicated target Actions
             container.querySelectorAll('.btn-special').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const card = (e.target as any).closest('.feed-item-card');
+                    const card = (e.target).closest('.feed-item-card');
                     const id = card.dataset.id;
-                    const type = (btn as any).dataset.type;
+                    const type = (btn).dataset.type;
 
                     if (type === 'create_jira_task') {
                         Store.tasks.add({
@@ -350,3 +350,7 @@ export const FeedComponent = {
         loadFeed('all');
     }
 };
+
+
+
+

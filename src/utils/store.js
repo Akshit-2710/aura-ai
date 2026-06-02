@@ -72,7 +72,7 @@ const seedData = () => {
                 id: 'feed-1',
                 source: 'figma',
                 title: 'New Client Feedback on Checkout Flow',
-                snippet: 'Figma comment by Sarah (Client): "We need this checkout form to support Apple Pay directly in the first modal, otherwise we will lose mobile sales. Can we change this before Friday\\'s client review?"',
+                snippet: 'Figma comment by Sarah (Client): "We need this checkout form to support Apple Pay directly in the first modal, otherwise we will lose mobile sales. Can we change this before Friday\'s client review?"',
                 createdAt: new Date(now - 15 * 60 * 1000).toISOString(),
                 priority: 'high',
                 resolved: false,
@@ -243,17 +243,17 @@ export const Store = {
 
                 // Seed new team members
                 const newUserList = [
-                    { email: \`sarah.\${teamId}@work.ai\`, name: 'Sarah M.', password: 'simulated_user', role: 'Senior Engineer', teamId: teamId },
-                    { email: \`dave.\${teamId}@work.ai\`, name: 'Dave K.', password: 'simulated_user', role: 'Fullstack Dev', teamId: teamId },
-                    { email: \`tony.\${teamId}@work.ai\`, name: 'Tony Stark', password: 'simulated_user', role: 'Systems Architect', teamId: teamId }
+                    { email: `sarah.${teamId}@work.ai`, name: 'Sarah M.', password: 'simulated_user', role: 'Senior Engineer', teamId: teamId },
+                    { email: `dave.${teamId}@work.ai`, name: 'Dave K.', password: 'simulated_user', role: 'Fullstack Dev', teamId: teamId },
+                    { email: `tony.${teamId}@work.ai`, name: 'Tony Stark', password: 'simulated_user', role: 'Systems Architect', teamId: teamId }
                 ];
                 localStorage.setItem('aura_users', JSON.stringify([...users, ...newUserList]));
                 
                 // Seed some messages
                 const now = Date.now();
                 const defaultMsgs = [
-                    { id: \`msg-\${Date.now()}-1\`, roomId: \`\${teamId}_general\`, senderEmail: \`tony.\${teamId}@work.ai\`, senderName: 'Tony Stark', text: \`Welcome to the \${cleanTeamName} team! AURA is fully online.\`, createdAt: new Date(now - 10*60*1000).toISOString() },
-                    { id: \`msg-\${Date.now()}-2\`, roomId: \`\${teamId}_general\`, senderEmail: \`sarah.\${teamId}@work.ai\`, senderName: 'Sarah M.', text: 'Hello everyone! Ask JARVIS about our wiki or tasks.', createdAt: new Date(now - 5*60*1000).toISOString() }
+                    { id: `msg-${Date.now()}-1`, roomId: `${teamId}_general`, senderEmail: `tony.${teamId}@work.ai`, senderName: 'Tony Stark', text: `Welcome to the ${cleanTeamName} team! AURA is fully online.`, createdAt: new Date(now - 10*60*1000).toISOString() },
+                    { id: `msg-${Date.now()}-2`, roomId: `${teamId}_general`, senderEmail: `sarah.${teamId}@work.ai`, senderName: 'Sarah M.', text: 'Hello everyone! Ask JARVIS about our wiki or tasks.', createdAt: new Date(now - 5*60*1000).toISOString() }
                 ];
                 const allMsgs = JSON.parse(localStorage.getItem('aura_messages') || '[]');
                 localStorage.setItem('aura_messages', JSON.stringify([...allMsgs, ...defaultMsgs]));
@@ -493,7 +493,7 @@ export const Store = {
                 dueDate: task.dueDate,
                 teamId: user.teamId,
                 pings: [
-                    { timestamp: new Date().toISOString(), message: \`Aura AI Auto-Ping: Task created and assigned to \${cleanAssignee}.\` }
+                    { timestamp: new Date().toISOString(), message: `Aura AI Auto-Ping: Task created and assigned to ${cleanAssignee}.` }
                 ]
             };
             current.push(newTask);
@@ -506,7 +506,7 @@ export const Store = {
                 if (t.id === id) {
                     const statusChangeMsg = {
                         timestamp: new Date().toISOString(),
-                        message: \`Task status changed to [\${newStatus.toUpperCase()}] by user.\`
+                        message: `Task status changed to [${newStatus.toUpperCase()}] by user.`
                     };
                     return { ...t, status: newStatus, pings: [...t.pings, statusChangeMsg] };
                 }
@@ -525,7 +525,7 @@ export const Store = {
                     title = t.title;
                     const pingMsg = {
                         timestamp: new Date().toISOString(),
-                        message: \`Aura AI Manual Trigger: Pinged \${assignee} via Slack and Email regarding: "\${title}".\`
+                        message: `Aura AI Manual Trigger: Pinged ${assignee} via Slack and Email regarding: "${title}".`
                     };
                     return { ...t, pings: [...t.pings, pingMsg] };
                 }
@@ -655,7 +655,7 @@ const getSimulatedReply = (name, userText) => {
         if (text.includes('security') || text.includes('sentry') || text.includes('bug') || text.includes('fail')) {
             return "I verified all input sanitization patterns. Input tags are completely escaped, preventing XSS injections. Sentry audits are green.";
         }
-        return \`Interesting points. I will document this in our Notion Team Wiki workspace. Let me know if you need specific security parameters checked.\`;
+        return `Interesting points. I will document this in our Notion Team Wiki workspace. Let me know if you need specific security parameters checked.`;
     }
 
     if (name.includes('Dave')) {
@@ -670,3 +670,5 @@ const getSimulatedReply = (name, userText) => {
 
     return "Message received. Synchronization protocols logged.";
 };
+
+
