@@ -19,11 +19,11 @@ export const AuthComponent = {
                     <form class="auth-form" id="login-form">
                         <div class="form-group">
                             <label for="login-email">Work Email</label>
-                            <input type="email" id="login-email" placeholder="you@company.com" required value="admin@work.ai">
+                            <input type="email" id="login-email" placeholder="you@company.com" required>
                         </div>
                         <div class="form-group">
                             <label for="login-password">Password</label>
-                            <input type="password" id="login-password" placeholder="••••••••" required value="password123">
+                            <input type="password" id="login-password" placeholder="••••••••" required>
                         </div>
                         <button type="submit" class="glow-btn" style="margin-top: 1rem; border: none; width: 100%;">Sign In</button>
                     </form>
@@ -100,7 +100,7 @@ export const AuthComponent = {
                         </div>
                         <div class="form-group" id="group-team-name">
                             <label for="reg-team-name">New Team Name</label>
-                            <input type="text" id="reg-team-name" placeholder="e.g. Stark Industries" value="Stark Industries">
+                            <input type="text" id="reg-team-name" placeholder="e.g. Your Team Name">
                         </div>
                         <div class="form-group" id="group-team-code" style="display: none;">
                             <label for="reg-team-code">Team Join Code</label>
@@ -163,16 +163,27 @@ export const AuthComponent = {
 
             const res = Store.auth.register(name, email, password, option, teamValue);
             if (res.success) {
-                // Show temporary overlay informing user of join code if they created a team
+                // Show in-app notification for team creation
                 const user = Store.auth.getCurrentUser();
                 const code = Store.auth.getTeamCode();
                 if (option === 'create' && code) {
-                    alert(`Team Created! Share this Join Code with teammates: ${code}`);
+                    errorDiv.style.background = 'rgba(0, 255, 136, 0.08)';
+                    errorDiv.style.border = '1px solid rgba(0, 255, 136, 0.3)';
+                    errorDiv.style.color = 'hsla(145, 100%, 52%, 1)';
+                    errorDiv.textContent = `✓ Team Created! Join Code: ${code} — Share with teammates`;
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => {
+                        onRegisterSuccess(res.user);
+                    }, 1500);
+                } else {
+                    onRegisterSuccess(res.user);
                 }
-                onRegisterSuccess(res.user);
             } else {
                 errorDiv.textContent = res.message;
                 errorDiv.style.display = 'block';
+                errorDiv.style.background = '';
+                errorDiv.style.border = '';
+                errorDiv.style.color = '';
             }
         });
     }
