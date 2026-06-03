@@ -479,16 +479,35 @@ button {
 }
 
 .hero-subtitle {
-    font-size: 1.1rem;
-    color: #94a3b8;
-    max-width: 700px;
-    margin-bottom: 2rem;
+    font-size: 1.08rem;
+    color: #cbd5e1;
+    max-width: 760px;
+    margin-bottom: 1.5rem;
+    line-height: 1.65;
 }
 
 .hero-ctas {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+.trust-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+}
+
+.trust-strip span {
+    border: 1px solid rgba(0, 240, 255, 0.18);
+    background: rgba(0, 240, 255, 0.04);
+    color: #dbeafe;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 /* -------------------------------------------------------------
