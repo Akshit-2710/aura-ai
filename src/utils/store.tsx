@@ -63,7 +63,8 @@ const defaultIntegrations = {
     github: false,
     trello: false,
     zoom: false,
-    googledrive: false
+    googledrive: false,
+    connections: {}
 };
 
 const profileStoreKey = (base, profileId) => `${base}_${profileId}`;
@@ -313,11 +314,26 @@ export const Store = {
 
     integrations: {
         get() {
-            return getProfileScopedStore('aura_integrations', defaultIntegrations);
+            const current = getProfileScopedStore('aura_integrations', defaultIntegrations);
+            return {
+                ...defaultIntegrations,
+                ...current,
+                connections: current?.connections || {}
+            };
         },
-        toggle(id) {
+        toggle(id, detail = null) {
             const current = this.get();
-            current[id] = !current[id];
+            const nextState = !current[id];
+            current[id] = nextState;
+            if (nextState) {
+                current.connections = {
+                    ...(current.connections || {}),
+                    [id]: detail || { account: 'Selected workspace account', approvedAt: new Date().toISOString() }
+                };
+            } else {
+                current.connections = { ...(current.connections || {}) };
+                delete current.connections[id];
+            }
             saveProfileScopedStore('aura_integrations', current);
             return current;
         }
