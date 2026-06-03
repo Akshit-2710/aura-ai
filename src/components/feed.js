@@ -28,10 +28,23 @@ export const FeedComponent = {
         const user = Store.auth.getCurrentUser();
         if (!user) return;
 
+        const hasStripeKnowledge = () => {
+            return Store.wiki.get().some(item => {
+                const title = item.title.toLowerCase();
+                const description = item.description.toLowerCase();
+                return title.includes('stripe') || description.includes('stripe') || item.tags.some(tag => tag.toLowerCase().includes('stripe'));
+            });
+        };
+
         const loadFeed = (priorityFilter = 'all') => {
             activePriorityFilter = priorityFilter;
             const integrations = Store.integrations.get();
-            const feedItems = Store.feed.get();
+            const feedItems = Store.feed.get().filter(item => {
+                if (item.source === 'email' && item.title.toLowerCase().includes('stripe') && !hasStripeKnowledge()) {
+                    return false;
+                }
+                return true;
+            });
             
             const filteredItems = priorityFilter === 'all' 
                 ? feedItems 
@@ -43,7 +56,9 @@ export const FeedComponent = {
             // Compute active nodes for telemetry
             const connectedCount = Object.values(integrations).filter(v => v === true).length;
             const noAppsConnected = connectedCount === 0;
-            const threatStatus = activeItems.some(i => i.priority === 'high') ? 'CRITICAL BLOCKS DETECTED' : 'STABLE';
+            const systemStatus = noAppsConnected ? 'IDLE' : 'SECURE';
+            const syncRate = noAppsConnected ? 'N/A' : `${Math.round(connectedCount / 10 * 100)}%`;
+            const threatStatus = activeItems.some(i => i.priority === 'high') ? 'CRITICAL BLOCKS DETECTED' : (noAppsConnected ? 'NO DATA' : 'STABLE');
 
             container.innerHTML = `
                 <div class="feed-layout animate-slide-up">
@@ -54,10 +69,10 @@ export const FeedComponent = {
                         
                         <!-- 3D Viewport inside Feed -->
                         <div class="orbit-viewport" style="height: 320px; margin: 0.5rem 0;">
-                            <div class="hud-telemetry tl">SYS STATUS: SCANNING</div>
-                            <div class="hud-telemetry tr">ACTIVE NODES: ${connectedCount}/10</div>
-                            <div class="hud-telemetry bl">THREAT: ${threatStatus}</div>
-                            <div class="hud-telemetry br">CORE SYNC: ${Math.round(connectedCount / 10 * 100)}%</div>
+<div class="hud-telemetry tl">SYS STATUS: ${systemStatus}</div>
+                                <div class="hud-telemetry tr">ACTIVE NODES: ${connectedCount}/10</div>
+                                <div class="hud-telemetry bl">THREAT: ${threatStatus}</div>
+                                <div class="hud-telemetry br">CORE SYNC: ${syncRate}</div>
 
                             <!-- Central Pulsing Core -->
                             <div class="jarvis-orb">

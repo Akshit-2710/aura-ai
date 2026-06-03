@@ -42,7 +42,11 @@ export default function App() {
     } else if (route === 'dashboard') {
       DashboardComponent.render(
         container,
-        () => setRoute('landing')
+        () => setRoute('landing'),
+        () => {
+          Store.auth.logout();
+          setRoute('landing');
+        }
       );
       AuraAnimations.initDashboard();
     }

@@ -1,15 +1,29 @@
+import { Store } from '../utils/store.js';
+
 export const LandingComponent = {
     render: (container, navigateToLogin, navigateToRegister) => {
+        const integrations = Store.integrations.get();
+        const diagnosticsData = [];
+        const solutionsData = [];
+        const connectedCount = Object.values(integrations).filter(Boolean).length;
+        const noIntegrations = connectedCount === 0;
+        const telemetryStatus = noIntegrations ? 'STANDBY' : 'ONLINE';
+        const syncRate = noIntegrations ? 'N/A' : `${Math.round((connectedCount / 10) * 100)}%`;
+        const threatStatus = diagnosticsData.length > 0 ? 'EVALUATING' : 'NONE';
+        const coreTemp = noIntegrations ? 'IDLE' : '32 C';
+
+        const showDiagnosticsLink = diagnosticsData.length > 0;
+
         container.innerHTML = `
             <!-- Navigation -->
             <nav class="landing-navbar">
-                <div class="logo-container">
+                <div class="logo-container" id="landing-logo-home" style="cursor: pointer;">
                     <div class="logo-icon"></div>
                     <span>AURA AI</span>
                 </div>
                 <div class="landing-nav-links">
                     <a href="#cockpit">Holographic Core</a>
-                    <a href="#problems">HUD Diagnostics</a>
+                    ${showDiagnosticsLink ? `<a href="#problems">HUD Diagnostics</a>` : ''}
                     <button class="btn-secondary" id="nav-login-btn">Secure Login</button>
                     <button class="glow-btn" id="nav-register-btn">Initialize Aura</button>
                 </div>
@@ -32,6 +46,12 @@ export const LandingComponent = {
                     <button class="glow-btn" id="hero-get-started">Start HUD Deployment</button>
                     <button class="btn-secondary" id="hero-learn-more" onclick="document.getElementById('cockpit').scrollIntoView({behavior: 'smooth'})">Access Core Reactor</button>
                 </div>
+                <div class="landing-page-links">
+                    <button class="btn-secondary" id="page-link-feed">Priority Feed</button>
+                    <button class="btn-secondary" id="page-link-meetings">Meeting Decisions</button>
+                    <button class="btn-secondary" id="page-link-wiki">Tribal Wiki</button>
+                    <button class="btn-secondary" id="page-link-integrations">Integrations</button>
+                </div>
             </section>
 
             <!-- Holographic Interactive 3D Orbiting Core (The JARVIS Reactor) -->
@@ -43,10 +63,10 @@ export const LandingComponent = {
 
                 <div class="orbit-viewport">
                     <!-- Telemetry Float Labels -->
-                    <div class="hud-telemetry tl">SYS STATUS: SCANNING</div>
-                    <div class="hud-telemetry tr">SYNC RATE: 99.84%</div>
-                    <div class="hud-telemetry bl">THREAT: MINIMAL</div>
-                    <div class="hud-telemetry br">CORE TEMP: 32 C</div>
+                    <div class="hud-telemetry tl">SYS STATUS: ${telemetryStatus}</div>
+                    <div class="hud-telemetry tr">SYNC RATE: ${syncRate}</div>
+                    <div class="hud-telemetry bl">THREAT: ${threatStatus}</div>
+                    <div class="hud-telemetry br">CORE TEMP: ${coreTemp}</div>
 
                     <!-- JARVIS Reactor Core -->
                     <div class="jarvis-orb">
@@ -117,20 +137,20 @@ export const LandingComponent = {
                         <div class="demo-preview-card" id="landing-telemetry-panel">
                             <div class="demo-header">
                                 <span style="font-weight: 700; color: #fff;" id="demo-source-name">SYSTEM ENGAGEMENT</span>
-                                <span class="priority-badge" id="demo-source-priority" style="background: rgba(0, 240, 255, 0.1); color: #00f0ff; border-color: rgba(0, 240, 255, 0.3);">ACTIVE SCAN</span>
+                                <span class="priority-badge" id="demo-source-priority" style="background: rgba(0, 240, 255, 0.1); color: #00f0ff; border-color: rgba(0, 240, 255, 0.3);">${noIntegrations ? 'STANDBY MODE' : 'ACTIVE SCAN'}</span>
                             </div>
                             <div class="demo-body" id="demo-source-body">
-                                <p style="color: #94a3b8; font-style: italic; line-height: 1.6;">Awaiting telemetry targeting. The revolving ring demonstrates the spatial 3D model connecting workspace feeds directly to the central Aura intelligence core.</p>
+                                <p style="color: #94a3b8; font-style: italic; line-height: 1.6;">${noIntegrations ? 'No live telemetry is connected yet. Connect integrations to reveal the AURA cockpit feed.' : 'Awaiting telemetry targeting. The revolving ring demonstrates the spatial 3D model connecting workspace feeds directly to the central Aura intelligence core.'}</p>
                             </div>
                             <div class="demo-footer" id="demo-source-footer">
-                                SECURE COCKPIT CONNECTIVITY
+                                ${noIntegrations ? 'CONNECTION REQUIRED' : 'SECURE COCKPIT CONNECTIVITY'}
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Diagnosed Problems section -->
+            ${diagnosticsData.length > 0 ? `
             <section class="landing-section" id="problems">
                 <div class="section-header">
                     <h2>HUD DIAGNOSTICS: SYSTEM COLLAPSE</h2>
@@ -138,45 +158,21 @@ export const LandingComponent = {
                 </div>
                 
                 <div class="problems-grid">
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap">
-                            <i class="lucide-icon" data-lucide="layers"></i>
+                    ${diagnosticsData.map(item => `
+                        <div class="glass-card problem-card">
+                            <div class="icon-wrap">
+                                <i class="lucide-icon" data-lucide="${item.icon}"></i>
+                            </div>
+                            <h3>${item.title}</h3>
+                            <p>${item.desc}</p>
+                            <div class="example-tag">${item.tag}</div>
                         </div>
-                        <h3>Information Overload</h3>
-                        <p>Fragmented input streams scatter focus. Frequent context switching triggers cognitive exhaust, destroying deep focus times.</p>
-                        <div class="example-tag">Breakdown: Team wakes up to dozens of unsorted Slack, Figma, and Jira comments.</div>
-                    </div>
-                    
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap">
-                            <i class="lucide-icon" data-lucide="users"></i>
-                        </div>
-                        <h3>Coordination Overhead</h3>
-                        <p>Hours wasted on redundant sync meetings. Key decisions get buried inside verbal updates, leading to major implementation setbacks.</p>
-                        <div class="example-tag">Breakdown: Dev builds deprecated logic because verbal planning updates vanished.</div>
-                    </div>
-                    
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap">
-                            <i class="lucide-icon" data-lucide="brain"></i>
-                        </div>
-                        <h3>Tribal Knowledge Leak</h3>
-                        <p>Critical context remains undocumented. When key engineers depart, legacy workarounds break and teams spend weekends debugging.</p>
-                        <div class="example-tag">Breakdown: Optimizing a slow API breaks the legacy rate-limiting partner bank delay.</div>
-                    </div>
-                    
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap">
-                            <i class="lucide-icon" data-lucide="check-square"></i>
-                        </div>
-                        <h3>Follow-Through Gaps</h3>
-                        <p>Action items are assigned verbally, logged nowhere, and forgotten. Accountability loops remain open and unverified.</p>
-                        <div class="example-tag">Breakdown: Deadlines missed as members assume ownership belongs to others.</div>
-                    </div>
+                    `).join('')}
                 </div>
             </section>
+            ` : ''}
 
-            <!-- How AURA Solves It -->
+            ${solutionsData.length > 0 ? `
             <section class="landing-section" id="solutions">
                 <div class="section-header">
                     <h2>HOW AURA SOLVES IT</h2>
@@ -184,43 +180,19 @@ export const LandingComponent = {
                 </div>
 
                 <div class="problems-grid">
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap" style="background: rgba(0, 240, 255, 0.1);">
-                            <i class="lucide-icon" data-lucide="radio"></i>
+                    ${solutionsData.map(item => `
+                        <div class="glass-card problem-card">
+                            <div class="icon-wrap" style="background: rgba(0, 240, 255, 0.1);">
+                                <i class="lucide-icon" data-lucide="${item.icon}"></i>
+                            </div>
+                            <h3>${item.title}</h3>
+                            <p>${item.desc}</p>
+                            <div class="example-tag" style="border-color: rgba(0, 240, 255, 0.2); color: rgba(0, 240, 255, 0.8);">${item.tag}</div>
                         </div>
-                        <h3>Ambient Feed Intelligence</h3>
-                        <p>Aura monitors Slack, Figma, Notion, Jira, Gmail, GitHub, WhatsApp, Trello, Zoom, and Google Drive in real-time — synthesizing signals into a single prioritized feed.</p>
-                        <div class="example-tag" style="border-color: rgba(0, 240, 255, 0.2); color: rgba(0, 240, 255, 0.8);">Result: Zero tab-switching. One unified intelligence stream.</div>
-                    </div>
-
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap" style="background: rgba(0, 240, 255, 0.1);">
-                            <i class="lucide-icon" data-lucide="book-open"></i>
-                        </div>
-                        <h3>Tribal Knowledge Wiki</h3>
-                        <p>Automatically captures undocumented institutional knowledge — legacy hacks, partner quirks, secret configs — before they walk out the door.</p>
-                        <div class="example-tag" style="border-color: rgba(0, 240, 255, 0.2); color: rgba(0, 240, 255, 0.8);">Result: New hires onboard 3x faster. Zero knowledge loss.</div>
-                    </div>
-
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap" style="background: rgba(0, 240, 255, 0.1);">
-                            <i class="lucide-icon" data-lucide="target"></i>
-                        </div>
-                        <h3>Accountability Engine</h3>
-                        <p>Every meeting action item becomes a tracked task with automated pings. No more "I thought you were handling that" moments.</p>
-                        <div class="example-tag" style="border-color: rgba(0, 240, 255, 0.2); color: rgba(0, 240, 255, 0.8);">Result: 100% action item follow-through rate.</div>
-                    </div>
-
-                    <div class="glass-card problem-card">
-                        <div class="icon-wrap" style="background: rgba(0, 240, 255, 0.1);">
-                            <i class="lucide-icon" data-lucide="message-circle"></i>
-                        </div>
-                        <h3>Team Communication Hub</h3>
-                        <p>Private group and individual messaging. Channels for engineering, general, and direct messages — all within the secure AURA cockpit.</p>
-                        <div class="example-tag" style="border-color: rgba(0, 240, 255, 0.2); color: rgba(0, 240, 255, 0.8);">Result: Centralized team chat with AI-powered context.</div>
-                    </div>
+                    `).join('')}
                 </div>
             </section>
+            ` : ''}
 
             <!-- EXTRA CONTEXT SECTION -->
             <section class="landing-section" id="how-it-works" style="background: rgba(0, 240, 255, 0.02); border-top: 1px solid rgba(0, 240, 255, 0.1); border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
@@ -294,6 +266,21 @@ export const LandingComponent = {
         // Nav click listeners
         document.getElementById('nav-login-btn').addEventListener('click', navigateToLogin);
         document.getElementById('nav-register-btn').addEventListener('click', navigateToRegister);
+        const logoHome = document.getElementById('landing-logo-home');
+        if (logoHome) {
+            logoHome.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        }
+
+        const pageFeedBtn = document.getElementById('page-link-feed');
+        const pageMeetingsBtn = document.getElementById('page-link-meetings');
+        const pageWikiBtn = document.getElementById('page-link-wiki');
+        const pageIntegrationsBtn = document.getElementById('page-link-integrations');
+
+        if (pageFeedBtn) pageFeedBtn.addEventListener('click', navigateToLogin);
+        if (pageMeetingsBtn) pageMeetingsBtn.addEventListener('click', navigateToLogin);
+        if (pageWikiBtn) pageWikiBtn.addEventListener('click', navigateToLogin);
+        if (pageIntegrationsBtn) pageIntegrationsBtn.addEventListener('click', navigateToLogin);
+
         const heroRegisterBtn = document.getElementById('hero-get-started');
         const handleDeployClick = (btnElement) => {
             if (!btnElement) return;

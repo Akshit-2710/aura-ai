@@ -8,7 +8,7 @@ import { IntegrationsComponent } from './integrations.js';
 import { ChatComponent } from './chat.js';
 
 export const DashboardComponent = {
-    render: (container, onLogout) => {
+    render: (container, navigateHome, onLogout) => {
         const user = Store.auth.getCurrentUser();
         if (!user) {
             onLogout(); // Guard redirect
@@ -71,6 +71,12 @@ export const DashboardComponent = {
                 <!-- Main Viewport -->
                 <main class="dashboard-main">
                     <header class="dashboard-header" style="border-bottom: 1px solid rgba(0, 240, 255, 0.15);">
+                        <div class="header-left-actions">
+                            <button class="btn-icon" id="dashboard-home-btn" title="Back to homepage">
+                                <i class="lucide-icon" data-lucide="home"></i>
+                            </button>
+                            <button class="btn-secondary btn-prev-page" id="dashboard-prev-btn">PREVIOUS PAGE</button>
+                        </div>
                         <div class="header-title-area">
                             <h2 id="viewport-title" style="font-size: 1.1rem; color: #fff; text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">Priority Feed</h2>
                         </div>
@@ -103,6 +109,7 @@ export const DashboardComponent = {
         const viewPort = document.getElementById('viewport-content');
         const viewTitle = document.getElementById('viewport-title');
         const menuItems = document.querySelectorAll('.menu-item');
+        const previousTab = { current: 'feed', last: 'feed' };
 
         const activeSubviews = {
             feed: {
@@ -134,6 +141,11 @@ export const DashboardComponent = {
         };
 
         const loadTab = (tabId, context = null) => {
+            if (tabId !== previousTab.current) {
+                previousTab.last = previousTab.current;
+                previousTab.current = tabId;
+            }
+
             menuItems.forEach((item) => {
                 if (item.dataset.tab === tabId) {
                     item.classList.add('active');
@@ -156,6 +168,23 @@ export const DashboardComponent = {
                 loadTab(item.dataset.tab);
             });
         });
+
+        // Header navigation buttons
+        const homeButton = document.getElementById('dashboard-home-btn');
+        const previousButton = document.getElementById('dashboard-prev-btn');
+
+        if (homeButton) {
+            homeButton.addEventListener('click', () => {
+                navigateHome();
+            });
+        }
+
+        if (previousButton) {
+            previousButton.addEventListener('click', () => {
+                const backTab = previousTab.last || 'feed';
+                loadTab(backTab);
+            });
+        }
 
         // Logout
         document.getElementById('dashboard-logout-btn').addEventListener('click', () => {

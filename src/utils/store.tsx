@@ -5,7 +5,7 @@
 // Global Security Sanitizer for XSS Prevention
 export const escapeHTML = (str) => {
     if (typeof str !== 'string') return str;
-    return str.replace(/[&<>'"]/g, 
+    return str.replace(/[&<>'"]/g,
         tag => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -16,58 +16,122 @@ export const escapeHTML = (str) => {
     );
 };
 
-// Data schema version — bump this to force a reseed when schema changes
-const DATA_VERSION = '4.1.0';
-const storedVersion = localStorage.getItem('aura_data_version');
+const STORAGE_KEYS = {
+    version: 'aura_data_version',
+    accounts: 'aura_accounts',
+    session: 'aura_session'
+};
+
+const DATA_VERSION = '5.0.0';
+const storedVersion = localStorage.getItem(STORAGE_KEYS.version);
 if (storedVersion !== DATA_VERSION) {
-    // Clear all stores to ensure clean migration to team-based schema
-    [
-        'aura_integrations', 'aura_feed', 'aura_meetings', 
-        'aura_wiki', 'aura_tasks', 'aura_messages', 
-        'aura_teams', 'aura_users', 'aura_session'
-    ].forEach(k => localStorage.removeItem(k));
-    localStorage.setItem('aura_data_version', DATA_VERSION);
+    localStorage.setItem(STORAGE_KEYS.version, DATA_VERSION);
 }
 
-// Helper to seed localStorage if empty
+const loadJSON = (key, fallback) => {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    try { return JSON.parse(raw); } catch { return fallback; }
+};
+
+const saveJSON = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+};
+
+const findAccount = (email) => {
+    const accounts = loadJSON(STORAGE_KEYS.accounts, []);
+    return accounts.find(a => a.email === escapeHTML(email));
+};
+
+const updateAccount = (account) => {
+    const accounts = loadJSON(STORAGE_KEYS.accounts, []);
+    const next = accounts.map(a => a.email === account.email ? account : a);
+    if (!next.some(a => a.email === account.email)) {
+        next.push(account);
+    }
+    saveJSON(STORAGE_KEYS.accounts, next);
+    return account;
+};
+
+const defaultIntegrations = {
+    slack: false,
+    figma: false,
+    notion: false,
+    jira: false,
+    email: false,
+    whatsapp: false,
+    github: false,
+    trello: false,
+    zoom: false,
+    googledrive: false
+};
+
+const profileStoreKey = (base, profileId) => `${base}_${profileId}`;
+const getCurrentProfileId = () => {
+    const session = loadJSON(STORAGE_KEYS.session, null);
+    return session ? session.activeProfileId : null;
+};
+
+const getProfileScopedStore = (baseKey, fallback = null) => {
+    const profileId = getCurrentProfileId();
+    if (!profileId) return fallback;
+    return loadJSON(profileStoreKey(baseKey, profileId), fallback);
+};
+
+const saveProfileScopedStore = (baseKey, value) => {
+    const profileId = getCurrentProfileId();
+    if (!profileId) return;
+    saveJSON(profileStoreKey(baseKey, profileId), value);
+};
+
+const createId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
 const seedData = () => {
-    // 1. Teams Seeding
-    if (!localStorage.getItem('aura_teams')) {
-        localStorage.setItem('aura_teams', JSON.stringify([
-            { id: 'team-stark', name: 'Stark Industries', code: 'STARK456' }
-        ]));
-    }
+    if (!localStorage.getItem(STORAGE_KEYS.accounts)) {
+        const individualProfileId = 'profile-admin-individual';
+        const teamProfileId = 'profile-admin-stark';
+        const accounts = [
+            {
+                email: 'admin@work.ai',
+                password: 'password123',
+                name: 'Alex Johnson',
+                consent: {
+                    termsAccepted: true,
+                    privacyAccepted: true,
+                    termsAcceptedAt: new Date().toISOString(),
+                    privacyAcceptedAt: new Date().toISOString()
+                },
+                profiles: [
+                    {
+                        id: individualProfileId,
+                        type: 'individual',
+                        profileName: 'Alex Johnson',
+                        teamName: 'Individual Workspace',
+                        role: 'Product Lead',
+                        bio: 'Strategic product leader focused on AI coordination and team throughput.',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: teamProfileId,
+                        type: 'team',
+                        profileName: 'Stark Industries',
+                        teamName: 'Stark Industries',
+                        role: 'Executive Operations Team',
+                        bio: 'High-velocity operations team for mission-critical integration orchestration.',
+                        createdAt: new Date().toISOString()
+                    }
+                ],
+                lastActiveProfileId: individualProfileId,
+                createdAt: new Date().toISOString()
+            }
+        ];
+        saveJSON(STORAGE_KEYS.accounts, accounts);
 
-    // 2. Users Seeding (linked to Stark Industries)
-    if (!localStorage.getItem('aura_users')) {
-        localStorage.setItem('aura_users', JSON.stringify([
-            { email: 'admin@work.ai', name: 'Alex Johnson', password: 'password123', role: 'Product Lead', teamId: 'team-stark' },
-            { email: 'tony@stark.com', name: 'Tony Stark', password: 'simulated_user', role: 'Chief Systems Architect', teamId: 'team-stark' },
-            { email: 'sarah@stark.com', name: 'Sarah Connor', password: 'simulated_user', role: 'Senior Security Lead', teamId: 'team-stark' },
-            { email: 'dave@stark.com', name: 'Dave K.', password: 'simulated_user', role: 'Fullstack Dev', teamId: 'team-stark' }
-        ]));
-    }
+        saveJSON(profileStoreKey('aura_integrations', individualProfileId), defaultIntegrations);
+        saveJSON(profileStoreKey('aura_integrations', teamProfileId), defaultIntegrations);
 
-    // 3. Integrations Seeding — ALL start disconnected
-    if (!localStorage.getItem('aura_integrations')) {
-        localStorage.setItem('aura_integrations', JSON.stringify({
-            slack: false,
-            figma: false,
-            notion: false,
-            jira: false,
-            email: false,
-            whatsapp: false,
-            github: false,
-            trello: false,
-            zoom: false,
-            googledrive: false
-        }));
-    }
-
-    // 4. Default Feed Items
-    if (!localStorage.getItem('aura_feed')) {
         const now = Date.now();
-        localStorage.setItem('aura_feed', JSON.stringify([
+        const initialFeed = [
             {
                 id: 'feed-1',
                 source: 'figma',
@@ -128,221 +192,281 @@ const seedData = () => {
                 actionType: 'ping_infra',
                 actionLabel: 'Ping Infra Team'
             }
-        ]));
-    }
+        ];
+        saveJSON(profileStoreKey('aura_feed', individualProfileId), initialFeed);
+        saveJSON(profileStoreKey('aura_tasks', individualProfileId), []);
+        saveJSON(profileStoreKey('aura_meetings', individualProfileId), []);
+        saveJSON(profileStoreKey('aura_wiki', individualProfileId), []);
+        saveJSON(profileStoreKey('aura_tasks', teamProfileId), []);
+        saveJSON(profileStoreKey('aura_meetings', teamProfileId), []);
+        saveJSON(profileStoreKey('aura_wiki', teamProfileId), []);
 
-    // 5. Default Messages (linked to channels)
-    if (!localStorage.getItem('aura_messages')) {
-        const now = Date.now();
-        localStorage.setItem('aura_messages', JSON.stringify([
-            // #general
-            { id: 'm-1', roomId: 'team-stark_general', senderEmail: 'tony@stark.com', senderName: 'Tony Stark', text: 'System diagnostics complete. Welcome everyone to the Stark AURA chief of staff cockpit.', createdAt: new Date(now - 120*60*1000).toISOString() },
-            { id: 'm-2', roomId: 'team-stark_general', senderEmail: 'dave@stark.com', senderName: 'Dave K.', text: 'Thanks Tony! Did anyone verify the rate-limit issue on `/v1/bank-sync`?', createdAt: new Date(now - 90*60*1000).toISOString() },
-            { id: 'm-3', roomId: 'team-stark_general', senderEmail: 'sarah@stark.com', senderName: 'Sarah Connor', text: 'Yes Dave. There is a 3-second sleep required. It is documented in the Tribal Wiki. DO NOT remove it.', createdAt: new Date(now - 70*60*1000).toISOString() },
-            
-            // #engineering
-            { id: 'm-4', roomId: 'team-stark_engineering', senderEmail: 'sarah@stark.com', senderName: 'Sarah Connor', text: 'We need to migrate our API key usage to OAuth2 bearer tokens by Friday.', createdAt: new Date(now - 240*60*1000).toISOString() },
-            { id: 'm-5', roomId: 'team-stark_engineering', senderEmail: 'dave@stark.com', senderName: 'Dave K.', text: 'Got it, tracking that in the Notion Spec document.', createdAt: new Date(now - 200*60*1000).toISOString() }
-        ]));
-    }
+        if (!localStorage.getItem('aura_teams')) {
+            saveJSON('aura_teams', [{ id: 'team-stark', name: 'Stark Industries', code: 'STARK456' }]);
+        }
 
-    // 6. Meetings — start EMPTY
-    if (!localStorage.getItem('aura_meetings')) {
-        localStorage.setItem('aura_meetings', JSON.stringify([]));
-    }
+        if (!localStorage.getItem('aura_users')) {
+            saveJSON('aura_users', [
+                { email: 'admin@work.ai', name: 'Alex Johnson', password: 'password123', role: 'Product Lead', teamId: 'team-stark' },
+                { email: 'tony@stark.com', name: 'Tony Stark', password: 'simulated_user', role: 'Chief Systems Architect', teamId: 'team-stark' },
+                { email: 'sarah@stark.com', name: 'Sarah Connor', password: 'simulated_user', role: 'Senior Security Lead', teamId: 'team-stark' },
+                { email: 'dave@stark.com', name: 'Dave K.', password: 'simulated_user', role: 'Fullstack Dev', teamId: 'team-stark' }
+            ]);
+        }
 
-    // 7. Wiki Cards (linked to team-stark)
-    if (!localStorage.getItem('aura_wiki')) {
-        localStorage.setItem('aura_wiki', JSON.stringify([
-            {
-                id: 'wiki-1',
-                title: 'Legacy Partner Bank 3-second Delay Hack',
-                category: 'Infrastructure',
-                description: 'The partner bank integration API (endpoint `/v1/bank-sync`) has strict rate limits (max 20 calls/min) and will silently drop requests if calls are spaced under 3 seconds. To prevent transaction drops, we implemented a mandatory 3-second delay between thread executions in our sync worker back in 2021. DO NOT optimize this delay out of the code, as the bank will block our API access key.',
-                tags: ['integration', 'banking', 'rate-limit', 'legacy'],
-                updatedAt: '12 months ago by Sarah M.',
-                author: 'Sarah M. (Senior Engineer)',
-                teamId: 'team-stark'
-            },
-            {
-                id: 'wiki-2',
-                title: 'Stripe Webhook Verification Config',
-                category: 'Billing',
-                description: 'Stripe webhooks are configured with signing secrets. In development and staging, you must set `STRIPE_WEBHOOK_SECRET` in your `.env` file. Failure to verify signatures will lead to transactions appearing successful locally but not triggering database updates. Staging secret is rotated monthly.',
-                tags: ['stripe', 'billing', 'security', 'webhooks'],
-                updatedAt: '2 months ago by Alex J.',
-                author: 'Alex J. (Product Lead)',
-                teamId: 'team-stark'
-            },
-            {
-                id: 'wiki-3',
-                title: 'OAuth2 Token Expiration & Refresh Flow',
-                category: 'Security',
-                description: 'Our mobile clients request refresh tokens every 7 days. If a client receives a 401 Unauthorized status code, it must attempt to hit `/api/auth/refresh` before redirecting the user to the login screen. If this refresh fails, clear secure storage and log out.',
-                tags: ['auth', 'oauth2', 'jwt', 'mobile'],
-                updatedAt: '3 weeks ago by Dave K.',
-                author: 'Dave K. (Engineer)',
-                teamId: 'team-stark'
-            }
-        ]));
-    }
-
-    // 8. Tasks
-    if (!localStorage.getItem('aura_tasks')) {
-        localStorage.setItem('aura_tasks', JSON.stringify([]));
+        if (!localStorage.getItem('aura_messages')) {
+            const nowMessages = Date.now();
+            saveJSON('aura_messages', [
+                { id: 'm-1', roomId: 'team-stark_general', senderEmail: 'tony@stark.com', senderName: 'Tony Stark', text: 'System diagnostics complete. Welcome everyone to the Stark AURA chief of staff cockpit.', createdAt: new Date(nowMessages - 120*60*1000).toISOString() },
+                { id: 'm-2', roomId: 'team-stark_general', senderEmail: 'dave@stark.com', senderName: 'Dave K.', text: 'Thanks Tony! Did anyone verify the rate-limit issue on `/v1/bank-sync`?', createdAt: new Date(nowMessages - 90*60*1000).toISOString() },
+                { id: 'm-3', roomId: 'team-stark_general', senderEmail: 'sarah@stark.com', senderName: 'Sarah Connor', text: 'Yes Dave. There is a 3-second sleep required. It is documented in the Tribal Wiki. DO NOT remove it.', createdAt: new Date(nowMessages - 70*60*1000).toISOString() },
+                { id: 'm-4', roomId: 'team-stark_engineering', senderEmail: 'sarah@stark.com', senderName: 'Sarah Connor', text: 'We need to migrate our API key usage to OAuth2 bearer tokens by Friday.', createdAt: new Date(nowMessages - 240*60*1000).toISOString() },
+                { id: 'm-5', roomId: 'team-stark_engineering', senderEmail: 'dave@stark.com', senderName: 'Dave K.', text: 'Got it, tracking that in the Notion Spec document.', createdAt: new Date(nowMessages - 200*60*1000).toISOString() }
+            ]);
+        }
     }
 };
 
-// Initialize seeding
 seedData();
 
 // Core Store Operations
 export const Store = {
-    // Auth Store
     auth: {
         login(email, password) {
-            const users = JSON.parse(localStorage.getItem('aura_users') || '[]');
-            const user = users.find(u => u.email === escapeHTML(email) && u.password === password);
-            if (user) {
-                const teams = JSON.parse(localStorage.getItem('aura_teams') || '[]');
-                const team = teams.find(t => t.id === user.teamId);
-                const sessionUser = { 
-                    email: user.email, 
-                    name: user.name, 
-                    role: user.role, 
-                    teamId: user.teamId, 
-                    teamName: team ? team.name : 'Individual Sandbox' 
-                };
-                localStorage.setItem('aura_session', JSON.stringify(sessionUser));
-                return { success: true, user: sessionUser };
+            const account = findAccount(email);
+            if (!account || account.password !== password) {
+                return { success: false, message: 'Invalid email or password.' };
             }
-            return { success: false, message: 'Invalid email or password.' };
+            const activeProfileId = account.lastActiveProfileId || account.profiles[0]?.id;
+            const session = {
+                email: account.email,
+                activeProfileId,
+                lastAuthAt: new Date().toISOString()
+            };
+            saveJSON(STORAGE_KEYS.session, session);
+            return {
+                success: true,
+                user: this.getCurrentUser(),
+                needsConsent: !(account.consent.termsAccepted && account.consent.privacyAccepted)
+            };
         },
 
         register(name, email, password, teamOption, teamValue) {
-            const users = JSON.parse(localStorage.getItem('aura_users') || '[]');
             const cleanEmail = escapeHTML(email);
-            if (users.some(u => u.email === cleanEmail)) {
+            if (findAccount(cleanEmail)) {
                 return { success: false, message: 'User already exists.' };
             }
+            const account = {
+                email: cleanEmail,
+                password,
+                name: escapeHTML(name),
+                createdAt: new Date().toISOString(),
+                consent: {
+                    termsAccepted: false,
+                    privacyAccepted: false
+                },
+                profiles: [],
+                lastActiveProfileId: null
+            };
 
-            const teams = JSON.parse(localStorage.getItem('aura_teams') || '[]');
-            let teamId = '';
-            let teamName = '';
+            const createProfile = (profileType, profileName, teamName, role, bio) => ({
+                id: createId('profile'),
+                type: profileType,
+                profileName: escapeHTML(profileName),
+                teamName: escapeHTML(teamName),
+                role: escapeHTML(role),
+                bio: escapeHTML(bio || ''),
+                createdAt: new Date().toISOString()
+            });
+
+            const personalProfile = createProfile('individual', name, 'Individual Workspace', 'Product Lead', 'Individual profile for personal analytics and task tracking.');
+            account.profiles.push(personalProfile);
 
             if (teamOption === 'create') {
-                // Create new team
-                const cleanTeamName = escapeHTML(teamValue || 'My Team');
-                // Alphanumeric code
-                const cleanCode = (cleanTeamName.replace(/\\s+/g, '').toUpperCase() + Math.floor(100 + Math.random() * 900)).substring(0, 10);
-                teamId = 'team-' + Date.now();
-                const newTeam = { id: teamId, name: cleanTeamName, code: cleanCode };
-                teams.push(newTeam);
-                localStorage.setItem('aura_teams', JSON.stringify(teams));
-                teamName = cleanTeamName;
-
-                // Seed new team members
-                const newUserList = [
-                    { email: `sarah.${teamId}@work.ai`, name: 'Sarah M.', password: 'simulated_user', role: 'Senior Engineer', teamId: teamId },
-                    { email: `dave.${teamId}@work.ai`, name: 'Dave K.', password: 'simulated_user', role: 'Fullstack Dev', teamId: teamId },
-                    { email: `tony.${teamId}@work.ai`, name: 'Tony Stark', password: 'simulated_user', role: 'Systems Architect', teamId: teamId }
-                ];
-                localStorage.setItem('aura_users', JSON.stringify([...users, ...newUserList]));
-                
-                // Seed some messages
-                const now = Date.now();
-                const defaultMsgs = [
-                    { id: `msg-${Date.now()}-1`, roomId: `${teamId}_general`, senderEmail: `tony.${teamId}@work.ai`, senderName: 'Tony Stark', text: `Welcome to the ${cleanTeamName} team! AURA is fully online.`, createdAt: new Date(now - 10*60*1000).toISOString() },
-                    { id: `msg-${Date.now()}-2`, roomId: `${teamId}_general`, senderEmail: `sarah.${teamId}@work.ai`, senderName: 'Sarah M.', text: 'Hello everyone! Ask JARVIS about our wiki or tasks.', createdAt: new Date(now - 5*60*1000).toISOString() }
-                ];
-                const allMsgs = JSON.parse(localStorage.getItem('aura_messages') || '[]');
-                localStorage.setItem('aura_messages', JSON.stringify([...allMsgs, ...defaultMsgs]));
+                const teamName = escapeHTML(teamValue || 'Team Workspace');
+                account.profiles.push(createProfile('team', teamName, teamName, 'Team Lead', 'Team profile for shared collaboration, approvals, and project delivery.'));
             } else if (teamOption === 'join') {
-                // Join existing team by code
-                const targetCode = (teamValue || '').trim().toUpperCase();
-                const matchedTeam = teams.find(t => t.code === targetCode);
-                if (!matchedTeam) {
+                const teams = loadJSON('aura_teams', []);
+                const matched = teams.find(t => t.code === String(teamValue || '').trim().toUpperCase());
+                if (!matched) {
                     return { success: false, message: 'Invalid Team Join Code. Contact your Administrator.' };
                 }
-                teamId = matchedTeam.id;
-                teamName = matchedTeam.name;
-            } else {
-                // Individual Account
-                teamId = 'individual-' + Date.now();
-                teamName = 'Individual Account';
-                const newTeam = { id: teamId, name: teamName, code: 'INDIVIDUAL' };
-                teams.push(newTeam);
-                localStorage.setItem('aura_teams', JSON.stringify(teams));
+                account.profiles.push(createProfile('team', matched.name, matched.name, 'Team Collaborator', 'Joined team profile for shared collaboration and accountability.'));
             }
 
-            const cleanName = escapeHTML(name);
-            const newUser = { name: cleanName, email: cleanEmail, password, role: 'Software Engineer', teamId: teamId };
-            
-            // Reload user records
-            const currentUsers = JSON.parse(localStorage.getItem('aura_users') || '[]');
-            currentUsers.push(newUser);
-            localStorage.setItem('aura_users', JSON.stringify(currentUsers));
-            
-            // Auto login after signup
-            const sessionUser = { email: newUser.email, name: newUser.name, role: newUser.role, teamId: newUser.teamId, teamName: teamName };
-            localStorage.setItem('aura_session', JSON.stringify(sessionUser));
-            return { success: true, user: sessionUser };
+            account.lastActiveProfileId = personalProfile.id;
+            const accounts = loadJSON(STORAGE_KEYS.accounts, []);
+            accounts.push(account);
+            saveJSON(STORAGE_KEYS.accounts, accounts);
+
+            saveJSON(profileStoreKey('aura_integrations', personalProfile.id), defaultIntegrations);
+            saveJSON(profileStoreKey('aura_feed', personalProfile.id), []);
+            saveJSON(profileStoreKey('aura_tasks', personalProfile.id), []);
+            saveJSON(profileStoreKey('aura_meetings', personalProfile.id), []);
+            saveJSON(profileStoreKey('aura_wiki', personalProfile.id), []);
+
+            if (account.profiles.length > 1) {
+                const teamProfile = account.profiles[1];
+                saveJSON(profileStoreKey('aura_integrations', teamProfile.id), defaultIntegrations);
+                saveJSON(profileStoreKey('aura_feed', teamProfile.id), []);
+                saveJSON(profileStoreKey('aura_tasks', teamProfile.id), []);
+                saveJSON(profileStoreKey('aura_meetings', teamProfile.id), []);
+                saveJSON(profileStoreKey('aura_wiki', teamProfile.id), []);
+            }
+
+            saveJSON(STORAGE_KEYS.session, {
+                email: account.email,
+                activeProfileId: account.lastActiveProfileId,
+                lastAuthAt: new Date().toISOString()
+            });
+
+            return { success: true, user: this.getCurrentUser() };
         },
 
         logout() {
-            localStorage.removeItem('aura_session');
+            localStorage.removeItem(STORAGE_KEYS.session);
             return true;
         },
 
         getCurrentUser() {
-            const session = localStorage.getItem('aura_session');
-            return session ? JSON.parse(session) : null;
+            const session = loadJSON(STORAGE_KEYS.session, null);
+            if (!session) return null;
+            const account = findAccount(session.email);
+            if (!account) return null;
+            const profile = account.profiles.find(p => p.id === session.activeProfileId) || account.profiles[0];
+            if (!profile) return null;
+            return {
+                email: account.email,
+                name: account.name,
+                profileId: profile.id,
+                profileName: profile.profileName,
+                teamName: profile.teamName,
+                role: profile.role,
+                bio: profile.bio,
+                profileType: profile.type,
+                needsConsent: !(account.consent.termsAccepted && account.consent.privacyAccepted)
+            };
+        },
+
+        getCurrentAccount() {
+            const session = loadJSON(STORAGE_KEYS.session, null);
+            return session ? findAccount(session.email) : null;
+        },
+
+        getProfiles() {
+            const account = this.getCurrentAccount();
+            return account ? account.profiles : [];
+        },
+
+        getActiveProfile() {
+            const account = this.getCurrentAccount();
+            const session = loadJSON(STORAGE_KEYS.session, null);
+            if (!account || !session) return null;
+            return account.profiles.find(p => p.id === session.activeProfileId) || account.profiles[0] || null;
+        },
+
+        switchProfile(profileId) {
+            const account = this.getCurrentAccount();
+            if (!account) return false;
+            const profile = account.profiles.find(p => p.id === profileId);
+            if (!profile) return false;
+            saveJSON(STORAGE_KEYS.session, {
+                email: account.email,
+                activeProfileId: profile.id,
+                lastAuthAt: new Date().toISOString()
+            });
+            account.lastActiveProfileId = profile.id;
+            updateAccount(account);
+            return true;
+        },
+
+        addProfile(profileType, displayName, teamName, role, bio) {
+            const account = this.getCurrentAccount();
+            if (!account) return { success: false, message: 'No authenticated account.' };
+            const newProfile = {
+                id: createId('profile'),
+                type: profileType,
+                profileName: escapeHTML(displayName),
+                teamName: escapeHTML(teamName || displayName),
+                role: escapeHTML(role),
+                bio: escapeHTML(bio || ''),
+                createdAt: new Date().toISOString()
+            };
+            account.profiles.push(newProfile);
+            updateAccount(account);
+            saveJSON(profileStoreKey('aura_integrations', newProfile.id), defaultIntegrations);
+            saveJSON(profileStoreKey('aura_feed', newProfile.id), []);
+            saveJSON(profileStoreKey('aura_tasks', newProfile.id), []);
+            saveJSON(profileStoreKey('aura_meetings', newProfile.id), []);
+            saveJSON(profileStoreKey('aura_wiki', newProfile.id), []);
+            return { success: true, profile: newProfile };
+        },
+
+        updateProfile(profileId, updates) {
+            const account = this.getCurrentAccount();
+            if (!account) return false;
+            account.profiles = account.profiles.map(p => p.id === profileId ? { ...p, ...updates } : p);
+            updateAccount(account);
+            return true;
+        },
+
+        hasConsent() {
+            const account = this.getCurrentAccount();
+            return account ? account.consent.termsAccepted && account.consent.privacyAccepted : false;
+        },
+
+        recordConsent(termsAccepted, privacyAccepted) {
+            const account = this.getCurrentAccount();
+            if (!account) return false;
+            account.consent = {
+                termsAccepted: !!termsAccepted,
+                privacyAccepted: !!privacyAccepted,
+                termsAcceptedAt: termsAccepted ? new Date().toISOString() : account.consent.termsAcceptedAt,
+                privacyAcceptedAt: privacyAccepted ? new Date().toISOString() : account.consent.privacyAcceptedAt
+            };
+            updateAccount(account);
+            return true;
         },
 
         getTeamMembers() {
-            const currentUser = this.getCurrentUser();
-            if (!currentUser) return [];
-            const users = JSON.parse(localStorage.getItem('aura_users') || '[]');
-            return users
-                .filter(u => u.teamId === currentUser.teamId && u.email !== currentUser.email)
-                .map(u => ({ email: u.email, name: u.name, role: u.role }));
+            const profile = this.getActiveProfile();
+            if (!profile || profile.profileType !== 'team') return [];
+            const users = loadJSON('aura_users', []);
+            return users.map(u => ({ email: u.email, name: u.name, role: u.role }));
         },
 
         getTeamCode() {
-            const currentUser = this.getCurrentUser();
-            if (!currentUser) return '';
-            const teams = JSON.parse(localStorage.getItem('aura_teams') || '[]');
-            const team = teams.find(t => t.id === currentUser.teamId);
+            const profile = this.getActiveProfile();
+            if (!profile) return '';
+            const teams = loadJSON('aura_teams', []);
+            const team = teams.find(t => t.name === profile.teamName);
             return team ? team.code : '';
         }
     },
 
-    // Integrations Store
     integrations: {
         get() {
-            return JSON.parse(localStorage.getItem('aura_integrations') || '{}');
+            return getProfileScopedStore('aura_integrations', defaultIntegrations);
         },
         toggle(id) {
             const current = this.get();
             current[id] = !current[id];
-            localStorage.setItem('aura_integrations', JSON.stringify(current));
+            saveProfileScopedStore('aura_integrations', current);
             return current;
         }
     },
 
-    // Feed Store
     feed: {
         get() {
-            const items = JSON.parse(localStorage.getItem('aura_feed') || '[]');
+            const items = getProfileScopedStore('aura_feed', []);
             const integrations = Store.integrations.get();
-            // Bypass app check if the item is a team update/broadcast
             return items.filter(item => item.source === 'team' || integrations[item.source] === true);
         },
         add(item) {
-            const items = JSON.parse(localStorage.getItem('aura_feed') || '[]');
+            const items = getProfileScopedStore('aura_feed', []);
             const user = Store.auth.getCurrentUser();
             const newItem = {
-                id: 'feed-' + Date.now(),
+                id: createId('feed'),
                 source: item.source || 'team',
                 title: item.title,
                 snippet: item.snippet,
@@ -352,35 +476,27 @@ export const Store = {
                 aiSynthesis: item.aiSynthesis || 'Broadcasted update.',
                 actionType: item.actionType || 'none',
                 actionLabel: item.actionLabel || 'Acknowledge',
-                teamId: user ? user.teamId : 'team-stark'
+                profileId: user ? user.profileId : null
             };
-            items.unshift(newItem);
-            localStorage.setItem('aura_feed', JSON.stringify(items));
+            const next = [newItem, ...items];
+            saveProfileScopedStore('aura_feed', next);
             return newItem;
         },
         resolve(id) {
-            const items = JSON.parse(localStorage.getItem('aura_feed') || '[]');
-            const updated = items.map(item => {
-                if (item.id === id) {
-                    return { ...item, resolved: true };
-                }
-                return item;
-            });
-            localStorage.setItem('aura_feed', JSON.stringify(updated));
+            const items = getProfileScopedStore('aura_feed', []);
+            const updated = items.map(item => item.id === id ? { ...item, resolved: true } : item);
+            saveProfileScopedStore('aura_feed', updated);
             return updated;
         }
     },
 
-    // Meetings Store
     meetings: {
         get() {
-            return JSON.parse(localStorage.getItem('aura_meetings') || '[]');
+            return getProfileScopedStore('aura_meetings', []);
         },
         add(meeting) {
             const current = this.get();
             const user = Store.auth.getCurrentUser();
-            
-            // Sanitize strings
             const cleanTitle = escapeHTML(meeting.title);
             const cleanSummary = escapeHTML(meeting.summary);
             const cleanDecisions = meeting.decisions.map(d => escapeHTML(d));
@@ -392,9 +508,8 @@ export const Store = {
                 speaker: escapeHTML(t.speaker),
                 text: escapeHTML(t.text)
             }));
-
             const newMeeting = {
-                id: 'meet-' + (current.length + 1),
+                id: createId('meet'),
                 date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
                 title: cleanTitle,
                 duration: meeting.duration,
@@ -403,13 +518,11 @@ export const Store = {
                 decisions: cleanDecisions,
                 actions: cleanActions,
                 transcript: cleanTranscript,
-                teamId: user ? user.teamId : 'team-stark'
+                profileId: user ? user.profileId : null
             };
-            current.unshift(newMeeting);
-            localStorage.setItem('aura_meetings', JSON.stringify(current));
-            
-            // Side effect: Automatically generate tasks from action items
-            if (cleanActions && cleanActions.length > 0) {
+            const next = [newMeeting, ...current];
+            saveProfileScopedStore('aura_meetings', next);
+            if (cleanActions.length > 0) {
                 cleanActions.forEach(act => {
                     Store.tasks.add({
                         title: act.task,
@@ -423,18 +536,12 @@ export const Store = {
         }
     },
 
-    // Tribal Knowledge Wiki Store
     wiki: {
         get(query = '') {
-            const items = JSON.parse(localStorage.getItem('aura_wiki') || '[]');
-            const user = Store.auth.getCurrentUser();
-            if (!user) return [];
-
-            const teamWiki = items.filter(item => item.teamId === user.teamId || !item.teamId);
-            if (!query) return teamWiki;
-            
+            const items = getProfileScopedStore('aura_wiki', []);
+            if (!query) return items;
             const lowerQuery = query.toLowerCase();
-            return teamWiki.filter(item => 
+            return items.filter(item =>
                 item.title.toLowerCase().includes(lowerQuery) ||
                 item.description.toLowerCase().includes(lowerQuery) ||
                 item.tags.some(tag => tag.toLowerCase().includes(lowerQuery)) ||
@@ -442,81 +549,61 @@ export const Store = {
             );
         },
         add(card) {
-            const items = JSON.parse(localStorage.getItem('aura_wiki') || '[]');
-            const user = Store.auth.getCurrentUser() || { email: 'admin@work.ai', name: 'Alex Johnson', role: 'Product Lead', teamId: 'team-stark' };
-
-            // Sanitize Wiki contents
-            const cleanTitle = escapeHTML(card.title);
-            const cleanDescription = escapeHTML(card.description);
-            const cleanTags = card.tags.map(t => escapeHTML(t));
-
+            const items = getProfileScopedStore('aura_wiki', []);
+            const user = Store.auth.getCurrentUser() || { profileName: 'You', profileId: null };
             const newCard = {
-                id: 'wiki-' + Date.now(),
-                updatedAt: 'Just now by you',
-                title: cleanTitle,
+                id: createId('wiki'),
+                updatedAt: `Just now by ${user.profileName}`,
+                title: escapeHTML(card.title),
                 category: card.category,
-                description: cleanDescription,
-                tags: cleanTags,
-                author: card.author,
-                teamId: user.teamId
+                description: escapeHTML(card.description),
+                tags: card.tags.map(t => escapeHTML(t)),
+                author: user.profileName,
+                profileId: user.profileId
             };
-            items.unshift(newCard);
-            localStorage.setItem('aura_wiki', JSON.stringify(items));
+            const next = [newCard, ...items];
+            saveProfileScopedStore('aura_wiki', next);
             return newCard;
         }
     },
 
-    // Accountability Tasks Store
     tasks: {
         get() {
-            const allTasks = JSON.parse(localStorage.getItem('aura_tasks') || '[]');
-            const user = Store.auth.getCurrentUser();
-            if (!user) return [];
-            return allTasks.filter(t => t.teamId === user.teamId);
+            return getProfileScopedStore('aura_tasks', []);
         },
         add(task) {
-            const current = JSON.parse(localStorage.getItem('aura_tasks') || '[]');
-            const user = Store.auth.getCurrentUser() || { email: 'admin@work.ai', name: 'Alex Johnson', teamId: 'team-stark' };
-
-            // Sanitize Task parameters
-            const cleanTitle = escapeHTML(task.title);
-            const cleanAssignee = escapeHTML(task.assignee);
-            const cleanSource = escapeHTML(task.source);
-
+            const current = getProfileScopedStore('aura_tasks', []);
+            const user = Store.auth.getCurrentUser() || { profileName: 'You', profileId: null };
             const newTask = {
-                id: 'task-' + Date.now(),
+                id: createId('task'),
                 status: 'todo',
                 createdAt: new Date().toISOString(),
-                title: cleanTitle,
-                assignee: cleanAssignee,
-                source: cleanSource,
+                title: escapeHTML(task.title),
+                assignee: escapeHTML(task.assignee),
+                source: escapeHTML(task.source),
                 dueDate: task.dueDate,
-                teamId: user.teamId,
+                profileId: user.profileId,
                 pings: [
-                    { timestamp: new Date().toISOString(), message: `Aura AI Auto-Ping: Task created and assigned to ${cleanAssignee}.` }
+                    { timestamp: new Date().toISOString(), message: `Aura AI Auto-Ping: Task created and assigned to ${escapeHTML(task.assignee)}.` }
                 ]
             };
-            current.push(newTask);
-            localStorage.setItem('aura_tasks', JSON.stringify(current));
+            const next = [newTask, ...current];
+            saveProfileScopedStore('aura_tasks', next);
             return newTask;
         },
         updateStatus(id, newStatus) {
-            const allTasks = JSON.parse(localStorage.getItem('aura_tasks') || '[]');
-            const updated = allTasks.map(t => {
+            const current = getProfileScopedStore('aura_tasks', []);
+            const updated = current.map(t => {
                 if (t.id === id) {
-                    const statusChangeMsg = {
-                        timestamp: new Date().toISOString(),
-                        message: `Task status changed to [${newStatus.toUpperCase()}] by user.`
-                    };
-                    return { ...t, status: newStatus, pings: [...t.pings, statusChangeMsg] };
+                    return { ...t, status: newStatus, pings: [...t.pings, { timestamp: new Date().toISOString(), message: `Task status changed to [${newStatus.toUpperCase()}].` }] };
                 }
                 return t;
             });
-            localStorage.setItem('aura_tasks', JSON.stringify(updated));
+            saveProfileScopedStore('aura_tasks', updated);
             return updated;
         },
         ping(id) {
-            const allTasks = JSON.parse(localStorage.getItem('aura_tasks') || '[]');
+            const allTasks = getProfileScopedStore('aura_tasks', []);
             let assignee = '';
             let title = '';
             const updated = allTasks.map(t => {
@@ -531,7 +618,7 @@ export const Store = {
                 }
                 return t;
             });
-            localStorage.setItem('aura_tasks', JSON.stringify(updated));
+            saveProfileScopedStore('aura_tasks', updated);
             return { updated, assignee, title };
         }
     },
