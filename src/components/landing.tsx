@@ -206,7 +206,7 @@ export const LandingComponent = {
                         <!-- RING 1: 4 electrons -->
                         <div class="electron-ring ring-1">
                             <div class="electron-node orbit-node slack ${integrations.slack ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: 0s;" data-source="slack">
-                                <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/slack/E01E5A" alt="Slack"></div>
+                                <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/slack/4A154B" alt="Slack"></div>
                             </div>
                             <div class="electron-node orbit-node figma ${integrations.figma ? 'connected' : 'disconnected'}" style="--orbit-speed: 10s; --delay: -2.5s;" data-source="figma">
                                 <div class="orbit-node-inner"><img src="https://cdn.simpleicons.org/figma/F24E1E" alt="Figma"></div>
