@@ -176,6 +176,21 @@ export const IntegrationsComponent = {
             const description = document.getElementById('oauth-description');
             const title = document.getElementById('oauth-title');
             let pendingIntegrationId = null;
+            const messageKey = '__auraIntegrationApprovalBound__';
+
+            if (!(window as any)[messageKey]) {
+                (window as any)[messageKey] = true;
+                window.addEventListener('message', (event) => {
+                    if (event.data?.type !== 'aura-integration-approval') return;
+                    Store.integrations.toggle(event.data.id, {
+                        account: event.data.account || 'Approved workspace account',
+                        approvedAt: event.data.approvedAt || new Date().toISOString(),
+                        provider: event.data.id
+                    });
+                    loadIntegrations();
+                    onUpdate();
+                });
+            }
 
             const providerConfig = {
                 slack: {
@@ -250,19 +265,67 @@ export const IntegrationsComponent = {
                         loadIntegrations();
                         onUpdate();
                     } else {
-                        pendingIntegrationId = id;
                         const config = providerConfig[id] || providerConfig.email;
-                        if (title) title.textContent = `Connect to ${config.name}`;
-                        if (description) description.textContent = `Aura will ask for permission to sync ${config.name.toLowerCase()} activity only after you approve the target account below.`;
-                        if (accountLabel) accountLabel.textContent = `${config.label} to connect`;
-                        if (accountInput) {
-                            accountInput.value = '';
-                            accountInput.placeholder = config.placeholder;
+                        const popup = window.open('', 'aura-provider-approval', 'width=460,height=560,resizable=yes,scrollbars=yes');
+                        if (!popup) {
+                            alert('Please allow pop-ups to approve the provider connection.');
+                            return;
                         }
-                        if (permissionList) {
-                            permissionList.innerHTML = config.summary.map(item => `• ${item}`).join('<br/>');
-                        }
-                        if (modal) modal.style.display = 'flex';
+                        popup.document.title = `Approve ${config.name}`;
+                        popup.document.write(`
+                            <!doctype html>
+                            <html lang="en">
+                            <head>
+                              <meta charset="UTF-8" />
+                              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                              <title>Approve ${config.name}</title>
+                              <style>
+                                body { font-family: Arial, sans-serif; margin: 0; background: linear-gradient(135deg,#07131d,#0e1e2f); color: #eff6ff; }
+                                .shell { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+                                .badge { display:inline-flex; align-items:center; gap:8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px; color:#8ec5ff; }
+                                h1 { margin: 0; font-size: 20px; line-height: 1.2; }
+                                p { margin: 0; color: #dfe7ff; font-size: 13px; line-height: 1.4; }
+                                label { font-size: 12px; color: #dfe7ff; font-weight: 600; }
+                                input { width: 100%; box-sizing: border-box; border: 1px solid #284161; background: rgba(255,255,255,0.05); color: #fff; border-radius: 10px; padding: 10px; font-size: 13px; }
+                                .card { border: 1px solid #284161; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 12px; }
+                                .row { display:flex; gap:10px; }
+                                button { flex: 1; border-radius: 10px; padding: 10px; border: none; cursor: pointer; font-weight: 700; font-size: 13px; }
+                                .secondary { background: #182738; color: #dfe7ff; }
+                                .primary { background: linear-gradient(135deg,#00d4ff,#6f8cff); color:#04101b; }
+                              </style>
+                            </head>
+                            <body>
+                              <div class="shell">
+                                <div class="badge">Provider approval</div>
+                                <h1>Approve ${config.name} access</h1>
+                                <p>This permission request comes from your provider app, not Aura, so the approval appears where you usually confirm external workspace access.</p>
+                                <div class="card">
+                                  <label for="provider-account">Target account</label>
+                                  <input id="provider-account" placeholder="${config.placeholder}" />
+                                </div>
+                                <div class="card">
+                                  <strong style="display:block; font-size:13px; margin-bottom:6px;">Requested permissions</strong>
+                                  <div style="font-size:12px; color:#dfe7ff; line-height:1.45;">${config.summary.map(item => `• ${item}`).join('<br />')}</div>
+                                </div>
+                                <div class="row">
+                                  <button class="secondary" id="cancel-btn" type="button">Cancel</button>
+                                  <button class="primary" id="approve-btn" type="button">Allow Access</button>
+                                </div>
+                              </div>
+                              <script>
+                                const approveBtn = document.getElementById('approve-btn');
+                                const cancelBtn = document.getElementById('cancel-btn');
+                                approveBtn.addEventListener('click', () => {
+                                  const account = document.getElementById('provider-account').value.trim() || 'Approved workspace account';
+                                  window.opener.postMessage({ type: 'aura-integration-approval', id: '${id}', account, approvedAt: new Date().toISOString() }, '*');
+                                  window.close();
+                                });
+                                cancelBtn.addEventListener('click', () => window.close());
+                              </script>
+                            </body>
+                            </html>
+                        `);
+                        popup.document.close();
                     }
                 });
             });
