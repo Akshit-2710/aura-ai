@@ -265,10 +265,22 @@ export const IntegrationsComponent = {
                               <script>
                                 const approveBtn = document.getElementById('approve-btn');
                                 const cancelBtn = document.getElementById('cancel-btn');
+                                const accountInput = document.getElementById('provider-account');
+                                approveBtn.disabled = true;
+                                approveBtn.style.opacity = '0.5';
+                                approveBtn.style.cursor = 'not-allowed';
+                                accountInput.addEventListener('input', () => {
+                                  const hasValue = accountInput.value.trim().length > 0;
+                                  approveBtn.disabled = !hasValue;
+                                  approveBtn.style.opacity = hasValue ? '1' : '0.5';
+                                  approveBtn.style.cursor = hasValue ? 'pointer' : 'not-allowed';
+                                });
                                 approveBtn.addEventListener('click', () => {
-                                  const account = document.getElementById('provider-account').value.trim() || 'Approved workspace account';
-                                  window.opener.postMessage({ type: 'aura-integration-approval', id: '${id}', account, approvedAt: new Date().toISOString() }, '*');
-                                  window.close();
+                                  const account = accountInput.value.trim();
+                                  if (account) {
+                                    window.opener.postMessage({ type: 'aura-integration-approval', id: '${id}', account, approvedAt: new Date().toISOString() }, '*');
+                                    window.close();
+                                  }
                                 });
                                 cancelBtn.addEventListener('click', () => window.close());
                               </script>
