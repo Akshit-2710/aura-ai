@@ -71,6 +71,7 @@ export const AuthComponent = {
                             <div class="logo-icon"></div>
                             <span>AURA AI</span>
                         </div>
+                        <button type="button" class="btn-secondary" id="register-back-btn" style="margin-top: 0.75rem;">Back</button>
                         <h2>Create Account</h2>
                         <p>Get started with the AI Chief of Staff</p>
                     </div>
@@ -121,6 +122,7 @@ export const AuthComponent = {
 
         // Event Listeners
         document.getElementById('logo-home-reg').addEventListener('click', navigateToLanding);
+        document.getElementById('register-back-btn').addEventListener('click', navigateToLanding);
         document.getElementById('link-to-login').addEventListener('click', (e) => {
             e.preventDefault();
             navigateToLogin();
