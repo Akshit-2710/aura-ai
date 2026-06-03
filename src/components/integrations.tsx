@@ -9,8 +9,8 @@ export const IntegrationsComponent = {
 
             container.innerHTML = `
                 <div class="integrations-layout animate-slide-up">
-                    <p style="font-size: 0.95rem; color: var(--text-secondary); max-width: 650px; margin-bottom: 1rem;">
-                        Connect your daily communication and collaboration tools. Aura operates ambiently, extracting context, decisions, and follow-ups without interrupting your focus.
+                    <p style="font-size: 0.95rem; color: var(--text-secondary); max-width: 750px; margin-bottom: 1.5rem;">
+                        Connect your daily communication and collaboration tools. Aura operates ambiently, extracting context, decisions, and follow-ups — then routes the most urgent items to your Priority Feed.
                     </p>
                     
                     <div class="integrations-grid">
@@ -19,7 +19,7 @@ export const IntegrationsComponent = {
                             'slack',
                             'Slack',
                             'E01E5A',
-                            'Monitors public channels for production logs, Sentry notices, and explicit action requests.',
+                            'Surface production alerts and action requests in your Priority Feed. Skip the noise.',
                             integrations.slack
                         )}
                         
@@ -28,7 +28,7 @@ export const IntegrationsComponent = {
                             'figma',
                             'Figma',
                             'F24E1E',
-                            'Observes document canvas comments, design changes, and client feedback markers.',
+                            'Route design feedback and client reviews to your HUD so nothing gets missed.',
                             integrations.figma
                         )}
                         
@@ -37,7 +37,7 @@ export const IntegrationsComponent = {
                             'notion',
                             'Notion',
                             'FFFFFF',
-                            'Scans team wiki revisions, technical specification updates, and project task backlogs.',
+                            'Sync spec updates and wiki changes so your team stays on the same page.',
                             integrations.notion
                         )}
                         
@@ -46,7 +46,7 @@ export const IntegrationsComponent = {
                             'jira',
                             'Jira',
                             '0052CC',
-                            'Tracks sprint tickets, blocked items, assignee changes, and development epics.',
+                            'Alert on blocked tickets and sprint overages before they derail delivery.',
                             integrations.jira
                         )}
                         
@@ -55,7 +55,7 @@ export const IntegrationsComponent = {
                             'gmail',
                             'Google Workspace',
                             'EA4335',
-                            'Triages inbound client requests, webhook warning flags, and third-party API deprecations.',
+                            'Never miss a client request or API deprecation buried in your inbox.',
                             integrations.email
                         )}
                         
@@ -64,7 +64,7 @@ export const IntegrationsComponent = {
                             'whatsapp',
                             'WhatsApp',
                             '25D366',
-                            'Syncs notification indicators, group alerts, and remote standups.',
+                            'Stay on top of urgent group alerts and remote standup decisions.',
                             integrations.whatsapp
                         )}
                         
@@ -73,7 +73,7 @@ export const IntegrationsComponent = {
                             'github',
                             'GitHub',
                             'FFFFFF',
-                            'Tracks pull requests, code reviews, and repository issues natively.',
+                            'Aggregate PR reviews and issue updates without context-switching.',
                             integrations.github
                         )}
                         
@@ -82,7 +82,7 @@ export const IntegrationsComponent = {
                             'trello',
                             'Trello',
                             '0052CC',
-                            'Watches card movements, attachments, and due date changes across boards.',
+                            'Track card movement and due dates across all boards in one place.',
                             integrations.trello
                         )}
                         
@@ -91,7 +91,7 @@ export const IntegrationsComponent = {
                             'zoom',
                             'Zoom',
                             '2D8CFF',
-                            'Transcribes cloud meetings and summarizes action items directly to tasks.',
+                            'Capture meeting decisions and action items automatically from cloud recordings.',
                             integrations.zoom
                         )}
                         
@@ -100,7 +100,7 @@ export const IntegrationsComponent = {
                             'googledrive',
                             'Google Drive',
                             'FFFFFF',
-                            'Scans shared folders for document edits and slide presentation updates.',
+                            'Alert when shared docs are updated and who made the change.',
                             integrations.googledrive
                         )}
                     </div>

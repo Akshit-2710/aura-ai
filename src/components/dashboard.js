@@ -129,7 +129,7 @@ export const DashboardComponent = {
                 render: () => TasksComponent.render(viewPort)
             },
             integrations: {
-                title: 'EXTERNAL LINKS',
+                title: 'INTEGRATIONS',
                 render: () => IntegrationsComponent.render(viewPort, () => {
                     // callback on integrations updated
                 })
